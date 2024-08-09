@@ -11,3 +11,7 @@
 
 
 #include "cartridge.h"
+
+CartridgeHeader *GetCartridgeHeader(byte *romData) {
+    return (CartridgeHeader*)(romData + 0x0100);
+}

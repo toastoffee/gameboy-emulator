@@ -37,9 +37,7 @@ struct CartridgeHeader {
     u8 global_checksum[2];
 };
 
-CartridgeHeader* GetCartridgeHeader(byte* romData) {
-    return (CartridgeHeader*)(romData + 0x0100);
-}
+CartridgeHeader* GetCartridgeHeader(byte* romData);
 
 
 #endif //GAMEBOY_EMULATOR_CARTRIDGE_H
