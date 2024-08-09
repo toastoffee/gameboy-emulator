@@ -3,4 +3,7 @@ project(gameboy_emulator)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(gameboy_emulator main.cpp)
+add_executable(gameboy_emulator main.cpp
+        src/cartridge.cpp
+        src/cartridge.h
+)
