@@ -6,4 +6,6 @@ set(CMAKE_CXX_STANDARD 11)
 add_executable(gameboy_emulator main.cpp
         src/cartridge.cpp
         src/cartridge.h
+        src/emulator.cpp
+        src/emulator.h
 )
