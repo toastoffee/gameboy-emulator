@@ -14,8 +14,8 @@
 #define GAMEBOY_EMULATOR_EMULATOR_H
 
 
-class emulator {
-
+class Emulator {
+    ~Emulator();
 };
 
 
