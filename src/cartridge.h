@@ -20,7 +20,6 @@ typedef uint8_t byte;
 
 typedef char c8;
 
-
 struct CartridgeHeader {
     u8 entry[4];
     u8 logo[0x30];
@@ -86,9 +85,6 @@ static const c8* RAM_SIZE_TYPES[] = {
     "64 KB (8 banks of 8KB each)"
 };
 
-static const c8* LIC_CODE_NAMES[] = {
-
-};
-
+const c8* GetCartridgeTypename(u8 type);
 
 #endif //GAMEBOY_EMULATOR_CARTRIDGE_H
