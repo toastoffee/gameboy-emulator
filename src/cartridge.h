@@ -87,4 +87,8 @@ static const c8* RAM_SIZE_TYPES[] = {
 
 const c8* GetCartridgeTypename(u8 type);
 
+const c8* GetCartridgeRamSizeName(u8 ramSizeCode);
+
+const c8* GetCartridgeLicCodeName(u8 licCode);
+
 #endif //GAMEBOY_EMULATOR_CARTRIDGE_H
