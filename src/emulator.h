@@ -13,9 +13,19 @@
 #ifndef GAMEBOY_EMULATOR_EMULATOR_H
 #define GAMEBOY_EMULATOR_EMULATOR_H
 
+#include "cartridge.h"
+#include "memory"
 
 class Emulator {
+private:
+    byte* _romData = nullptr;
+    u64 _romDataSize = 0;
+
+public:
     ~Emulator();
+
+    void Init(const void* cartridgeData, u64 cartridgeDataSize);
+
 };
 
 

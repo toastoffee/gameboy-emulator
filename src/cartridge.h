@@ -17,6 +17,7 @@
 
 typedef uint8_t u8;
 typedef uint8_t byte;
+typedef uint64_t u64;
 
 typedef char c8;
 
