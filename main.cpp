@@ -1,4 +1,7 @@
 #include <iostream>
+#include <memory>
+
+#include "src/emulator.h"
 #include "src/cartridge.h"
 
 
@@ -18,7 +21,9 @@ int main() {
     fread(source, sizeof(byte), fileSize, file);
     fclose(file);
 
-    auto cart = GetCartridgeHeader((byte*)source);
+    std::unique_ptr<Emulator> emulator(new Emulator);
+
+    emulator->Init(source, fileSize);
 
     return 0;
 }
