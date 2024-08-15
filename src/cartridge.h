@@ -13,13 +13,7 @@
 #ifndef GAMEBOY_EMULATOR_CARTRIDGE_H
 #define GAMEBOY_EMULATOR_CARTRIDGE_H
 
-#include <cstdint>
-
-typedef uint8_t u8;
-typedef uint8_t byte;
-typedef uint64_t u64;
-
-typedef char c8;
+#include "type.h"
 
 struct CartridgeHeader {
     u8 entry[4];

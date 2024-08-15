@@ -8,4 +8,5 @@ add_executable(gameboy_emulator main.cpp
         src/cartridge.h
         src/emulator.cpp
         src/emulator.h
+        src/type.h
 )
