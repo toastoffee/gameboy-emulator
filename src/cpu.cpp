@@ -12,6 +12,8 @@
 
 #include "cpu.h"
 #include "emulator.h"
+#include "instruction.h"
+#include "log-min.h"
 
 void CPU::Init() {
     af(0x01B0);
@@ -32,7 +34,13 @@ void CPU::Step(Emulator *emu) {
         ++pc;
 
         // execute counter
-
+        InstructionFunc* inst = instructionsMap[opcode];
+        if(!inst) {
+            ERROR("Instruction 0x%02X not present.", (u32)opcode);
+            emu->isPaused = true;
+        } else {
+            inst(emu);
+        }
 
     } else {
         emu->Tick(1);

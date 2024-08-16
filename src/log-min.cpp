@@ -35,12 +35,13 @@ void logError(LogLevel logLevel, const char *fileName, int line, const char *for
     vsnprintf(desc, sizeof(desc), format, args);
 
     char logContent[512];
-    snprintf(logContent, sizeof(logContent), "\n[%s] - %s:line %d - [%s] %s\n",
+    snprintf(logContent, sizeof(logContent), "[%s] - %s:line %d -  [%s]  %s\n",
              getCurrentTimeStamp().c_str(), fileName, line, convertLogLevelToStr(logLevel), desc);
 
     va_end(args);
 
-    throw std::runtime_error(logContent);
+//    throw std::runtime_error(logContent);
+    std::cout << logContent;
 }
 
 
@@ -90,7 +91,9 @@ void Fatal(const char *fileName, int line, const char *format, ...) {
     va_list args;
     va_start(args, format);
 
+    std::cout << RED;
     logError(LogLevel::Fatal, fileName, line, format, args);
+    std::cout << RESET;
 
     va_end(args);
 }
@@ -99,7 +102,9 @@ void Critical(const char *fileName, int line, const char *format, ...) {
     va_list args;
     va_start(args, format);
 
+    std::cout << RED;
     logError(LogLevel::Critical, fileName, line, format, args);
+    std::cout << RESET;
 
     va_end(args);
 }
@@ -108,18 +113,20 @@ void Error(const char *fileName, int line, const char *format, ...) {
     va_list args;
     va_start(args, format);
 
+    std::cout << RED;
     logError(LogLevel::Error, fileName, line, format, args);
+    std::cout << RESET;
 
     va_end(args);
-
-    throw std::runtime_error("runtime error!");
 }
 
 void Warn(const char *fileName, int line, const char *format, ...) {
     va_list args;
     va_start(args, format);
 
+    std::cout << YELLOW;
     log(LogLevel::Warn, fileName, line, format, args);
+    std::cout << RESET;
 
     va_end(args);
 }
@@ -128,7 +135,9 @@ void Info(const char *fileName, int line, const char *format, ...) {
     va_list args;
     va_start(args, format);
 
+    std::cout << BLUE;
     log(LogLevel::Info, fileName, line, format, args);
+    std::cout << RESET;
 
     va_end(args);
 }
@@ -137,7 +146,9 @@ void Debug(const char *fileName, int line, const char *format, ...) {
     va_list args;
     va_start(args, format);
 
+    std::cout << GREEN;
     log(LogLevel::Debug, fileName, line, format, args);
+    std::cout << RESET;
 
     va_end(args);
 }

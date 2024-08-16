@@ -26,6 +26,12 @@ enum class LogLevel : unsigned int {
     Debug       = 500,
 };
 
+const std::string RED = "\033[31m";
+const std::string GREEN = "\033[32m";
+const std::string YELLOW = "\033[33m";
+const std::string BLUE = "\033[34m";
+const std::string RESET = "\033[0m";
+
 void log(LogLevel logLevel, const char* fileName, int line, const char *format, va_list args);
 void logError(LogLevel logLevel, const char* fileName, int line, const char *format, va_list args);
 
