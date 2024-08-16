@@ -53,5 +53,17 @@ void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
 }
 
 void Emulator::Update(f64 deltaTime) {
+    u64 frameCycles = (u64)((f32)(GB_CLOCK_FREQUENCY * deltaTime) * _clockSpeedScale );
+    u64 endCycles = _clockCycles + frameCycles;
+    while(_clockCycles < endCycles) {
+        // step emulator and advance _clockCycles
 
+    }
+}
+
+void Emulator::Tick(u32 machineCycles) {
+    u32 tickCycles = machineCycles * GB_CLOCK_CYCLES_PER_MACHINE_CYCLE;
+    for (u32 i = 0; i < tickCycles; ++i) {
+        ++_clockCycles;
+    }
 }
