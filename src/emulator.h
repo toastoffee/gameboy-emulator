@@ -15,7 +15,7 @@
 
 #include "cartridge.h"
 #include "memory"
-
+#include "cpu.h"
 
 class Emulator {
 private:
@@ -28,6 +28,11 @@ private:
     constexpr static const f32 GB_CLOCK_FREQUENCY = 4194304.f;
     constexpr static const u32 GB_CLOCK_CYCLES_PER_MACHINE_CYCLE = 4;
 
+    CPU _cpu;
+
+    byte _vRam[8 * kb];
+    byte _wRam[8 * kb];
+    byte _hRam[128];
 
 public:
     ~Emulator();
@@ -39,6 +44,9 @@ public:
     // advances clock and updates all hardware states (except CPU)
     // This is called from the CPU instructions
     void Tick(u32 machineCycles);
+
+    u8 BusRead(u16 addr);
+    void BusWrite(u16 addr, u8 data);
 };
 
 

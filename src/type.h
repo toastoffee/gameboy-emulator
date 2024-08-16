@@ -27,4 +27,7 @@ typedef uint64_t u64;
 typedef float f32;
 typedef double f64;
 
+const int kb = 1024;
+const int mb = 1024 * kb;
+
 #endif //GAMEBOY_EMULATOR_TYPE_H

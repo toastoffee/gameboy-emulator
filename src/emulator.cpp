@@ -50,6 +50,9 @@ void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
     INFO("RAM Size : %2.2X (%s)", (u32)(header->ram_size), (GetCartridgeRamSizeName(header->ram_size)));
     INFO("LIC Code : %2.2X (%s)", (u32)(header->lic_code), (GetCartridgeLicCodeName(header->lic_code)));
     INFO("ROM Ver. : %2.2X", (u32)(header->version));
+
+    // init cpu
+    _cpu.Init();
 }
 
 void Emulator::Update(f64 deltaTime) {
@@ -57,7 +60,8 @@ void Emulator::Update(f64 deltaTime) {
     u64 endCycles = _clockCycles + frameCycles;
     while(_clockCycles < endCycles) {
         // step emulator and advance _clockCycles
-
+        if(_isPaused) break;
+        _cpu.Step(this);
     }
 }
 
@@ -66,4 +70,14 @@ void Emulator::Tick(u32 machineCycles) {
     for (u32 i = 0; i < tickCycles; ++i) {
         ++_clockCycles;
     }
+}
+
+u8 Emulator::BusRead(u16 addr) {
+    if(addr <= 0x7FFF)
+    {
+    }
+}
+
+void Emulator::BusWrite(u16 addr, u8 data) {
+
 }
