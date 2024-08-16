@@ -14,6 +14,7 @@
 #define GAMEBOY_EMULATOR_LOG_H
 
 #include <cstdarg>
+#include <string>
 
 enum class LogLevel : unsigned int {
 
@@ -25,13 +26,24 @@ enum class LogLevel : unsigned int {
     Debug       = 500,
 };
 
-void log(LogLevel logLevel, const char* fileName, int line, const char *loggerName, const char *format, va_list args);
+void log(LogLevel logLevel, const char* fileName, int line, const char *format, va_list args);
 
-#define FATAL(loggerName, format, ...)      log(LogLevel::Fatal, __FILE_NAME__, __LINE__, loggerName, format, ##__VA_ARGS__)
-#define CRITICAL(loggerName, format, ...)   log(LogLevel::Critical, __FILE_NAME__, __LINE__, loggerName, format, ##__VA_ARGS__)
-#define ERROR(loggerName, format, ...)      log(LogLevel::Error, __FILE_NAME__, __LINE__, loggerName, format, ##__VA_ARGS__)
-#define WARN(loggerName, format, ...)       log(LogLevel::Warn, __FILE_NAME__, __LINE__, loggerName, format, ##__VA_ARGS__)
-#define INFO(loggerName, format, ...)       log(LogLevel::Info, __FILE_NAME__, __LINE__, loggerName, format, ##__VA_ARGS__)
-#define DEBUG(loggerName, format, ...)      log(LogLevel::Debug, __FILE_NAME__, __LINE__, loggerName, format, ##__VA_ARGS__)
+void Fatal(const char *fileName, int line, const char *format, ...);
+void Critical(const char *fileName, int line, const char *format, ...);
+void Error(const char *fileName, int line, const char *format, ...);
+void Warn(const char *fileName, int line, const char *format, ...);
+void Info(const char *fileName, int line, const char *format, ...);
+void Debug(const char *fileName, int line, const char *format, ...);
+
+std::string getCurrentTimeStamp();
+
+const char* convertLogLevelToStr(const LogLevel &logLevel);
+
+#define FATAL(format, ...)      Fatal(__FILE_NAME__, __LINE__, format, ##__VA_ARGS__)
+#define CRITICAL(format, ...)   Critical(__FILE_NAME__, __LINE__, format, ##__VA_ARGS__)
+#define ERROR(format, ...)      Error( __FILE_NAME__, __LINE__, format, ##__VA_ARGS__)
+#define WARN(format, ...)       Warn(__FILE_NAME__, __LINE__, format, ##__VA_ARGS__)
+#define INFO(format, ...)       Info(__FILE_NAME__, __LINE__, format, ##__VA_ARGS__)
+#define DEBUG(format, ...)      Debug(__FILE_NAME__, __LINE__, format, ##__VA_ARGS__)
 
 #endif //GAMEBOY_EMULATOR_LOG_H
