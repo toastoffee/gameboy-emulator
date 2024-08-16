@@ -26,6 +26,7 @@ public:
 
     void Init(const void* cartridgeData, u64 cartridgeDataSize);
 
+    void Update()
 };
 
 
