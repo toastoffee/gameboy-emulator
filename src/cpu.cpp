@@ -46,3 +46,7 @@ void CPU::Step(Emulator *emu) {
         emu->Tick(1);
     }
 }
+
+void CPU::EnableInterruptMaster() {
+    /*TODO*/
+}

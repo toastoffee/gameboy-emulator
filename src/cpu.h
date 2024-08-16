@@ -59,6 +59,9 @@ public:
 
     void Init();
     void Step(Emulator* emu);
+
+    // enable interrupt master
+    void EnableInterruptMaster();
 };
 
 
