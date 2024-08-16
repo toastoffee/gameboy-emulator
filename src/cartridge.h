@@ -15,6 +15,8 @@
 
 #include "type.h"
 
+class Emulator;
+
 struct CartridgeHeader {
     u8 entry[4];
     u8 logo[0x30];
@@ -85,5 +87,9 @@ const c8* GetCartridgeTypename(u8 type);
 const c8* GetCartridgeRamSizeName(u8 ramSizeCode);
 
 const c8* GetCartridgeLicCodeName(u8 licCode);
+
+u8 CartridgeRead(Emulator *emu, u16 addr);
+
+void CartridgeWrite(Emulator *emu, u16 addr, u8 data);
 
 #endif //GAMEBOY_EMULATOR_CARTRIDGE_H

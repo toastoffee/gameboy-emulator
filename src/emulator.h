@@ -18,21 +18,21 @@
 #include "cpu.h"
 
 class Emulator {
-private:
-    byte* _romData = nullptr;
-    u64 _romDataSize = 0;
+public:
+    byte* romData = nullptr;
+    u64 romDataSize = 0;
 
-    bool _isPaused = false;         // is the emulation paused
-    f32 _clockSpeedScale = 1.0f;    // clock speed scale value
-    u64 _clockCycles = 0;           // the cycle counter
+    bool isPaused = false;         // is the emulation paused
+    f32 clockSpeedScale = 1.0f;    // clock speed scale value
+    u64 clockCycles = 0;           // the cycle counter
     constexpr static const f32 GB_CLOCK_FREQUENCY = 4194304.f;
     constexpr static const u32 GB_CLOCK_CYCLES_PER_MACHINE_CYCLE = 4;
 
-    CPU _cpu;
+    CPU cpu;
 
-    byte _vRam[8 * kb];
-    byte _wRam[8 * kb];
-    byte _hRam[128];
+    byte vRam[8 * kb];  // visual ram
+    byte wRam[8 * kb];  // working ram
+    byte hRam[128];     // high ram
 
 public:
     ~Emulator();

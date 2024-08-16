@@ -30,6 +30,20 @@ void log(LogLevel logLevel, const char *fileName, int line, const char *format, 
     std::cout << logContent;
 }
 
+void logError(LogLevel logLevel, const char *fileName, int line, const char *format, va_list args) {
+    char desc[128];
+    vsnprintf(desc, sizeof(desc), format, args);
+
+    char logContent[512];
+    snprintf(logContent, sizeof(logContent), "\n[%s] - %s:line %d - [%s] %s\n",
+             getCurrentTimeStamp().c_str(), fileName, line, convertLogLevelToStr(logLevel), desc);
+
+    va_end(args);
+
+    throw std::runtime_error(logContent);
+}
+
+
 std::string getCurrentTimeStamp(){
 
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -76,7 +90,7 @@ void Fatal(const char *fileName, int line, const char *format, ...) {
     va_list args;
     va_start(args, format);
 
-    log(LogLevel::Fatal, fileName, line, format, args);
+    logError(LogLevel::Fatal, fileName, line, format, args);
 
     va_end(args);
 }
@@ -85,7 +99,7 @@ void Critical(const char *fileName, int line, const char *format, ...) {
     va_list args;
     va_start(args, format);
 
-    log(LogLevel::Critical, fileName, line, format, args);
+    logError(LogLevel::Critical, fileName, line, format, args);
 
     va_end(args);
 }
@@ -94,9 +108,11 @@ void Error(const char *fileName, int line, const char *format, ...) {
     va_list args;
     va_start(args, format);
 
-    log(LogLevel::Error, fileName, line, format, args);
+    logError(LogLevel::Error, fileName, line, format, args);
 
     va_end(args);
+
+    throw std::runtime_error("runtime error!");
 }
 
 void Warn(const char *fileName, int line, const char *format, ...) {

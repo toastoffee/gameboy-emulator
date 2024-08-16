@@ -11,6 +11,8 @@
 
 
 #include "cartridge.h"
+#include "emulator.h"
+#include "log-min.h"
 
 CartridgeHeader *GetCartridgeHeader(byte *romData) {
     return (CartridgeHeader*)(romData + 0x0100);
@@ -97,4 +99,18 @@ const c8 *GetCartridgeLicCodeName(u8 licCode) {
         default: break;
     }
     return "UNKNOWN";
+}
+
+u8 CartridgeRead(Emulator *emu, u16 addr) {
+    if(addr <= 0x7FFF) {
+        return emu->romData[addr];
+    }
+    ERROR("Unsupported cartridge read address: 0x%04X", (u32)addr);
+    return 0xFF;
+}
+
+void CartridgeWrite(Emulator *emu, u16 addr, u8 data) {
+    // for now, we only support single ROM cartridge
+    // so cartridge write won't do anything
+    ERROR("Unsupported cartridge write address: 0x%04X", (u32)addr);
 }

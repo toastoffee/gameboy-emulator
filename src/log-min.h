@@ -27,6 +27,7 @@ enum class LogLevel : unsigned int {
 };
 
 void log(LogLevel logLevel, const char* fileName, int line, const char *format, va_list args);
+void logError(LogLevel logLevel, const char* fileName, int line, const char *format, va_list args);
 
 void Fatal(const char *fileName, int line, const char *format, ...);
 void Critical(const char *fileName, int line, const char *format, ...);
