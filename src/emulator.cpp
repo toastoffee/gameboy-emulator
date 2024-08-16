@@ -51,3 +51,7 @@ void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
     INFO("LIC Code : %2.2X (%s)", (u32)(header->lic_code), (GetCartridgeLicCodeName(header->lic_code)));
     INFO("ROM Ver. : %2.2X", (u32)(header->version));
 }
+
+void Emulator::Update(f64 deltaTime) {
+
+}

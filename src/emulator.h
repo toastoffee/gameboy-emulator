@@ -16,6 +16,7 @@
 #include "cartridge.h"
 #include "memory"
 
+
 class Emulator {
 private:
     byte* _romData = nullptr;
@@ -26,7 +27,7 @@ public:
 
     void Init(const void* cartridgeData, u64 cartridgeDataSize);
 
-    void Update()
+    void Update(f64 deltaTime);
 };
 
 

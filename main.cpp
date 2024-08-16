@@ -33,6 +33,7 @@ int main() {
         std::chrono::duration<double> fp_s = frame - lastFrame;
         lastFrame = frame;
 
+        emulator->Update(fp_s.count());
     }
 
     return 0;
