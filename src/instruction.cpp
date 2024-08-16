@@ -13,6 +13,26 @@
 #include "instruction.h"
 #include "emulator.h"
 
+// combines one 16-bit value from two 8-bit values.
+inline constexpr u16 MakeU16(u8 low, u8 high) {
+    return (u16)low | ((u16)high << 8);
+}
+
+// reads 16-bit immediate data.
+// cpu of Game Boy is little endian (low Byte data at low, high Byte data at high)
+inline u16 ReadU16(Emulator* emu) {
+    u16 r = MakeU16(emu->BusRead(emu->cpu.pc), emu->BusRead(emu->cpu.pc+1));
+    emu->cpu.pc += 2;
+    return r;
+}
+
+// reads 8-bit immediate data.
+inline u8 ReadU8(Emulator* emu) {
+    u8 r = emu->BusRead(emu->cpu.pc);
+    ++emu->cpu.pc;
+    return r;
+}
+
 // NOP : Do nothing
 void x00_nop(Emulator *emu) {
     // do nothing
@@ -20,6 +40,8 @@ void x00_nop(Emulator *emu) {
 }
 
 // LD instructions (0x40~0x7F)
+
+
 
 //! LD B,B : load B to B
 void x40_ld_b_b(Emulator * emu) {
