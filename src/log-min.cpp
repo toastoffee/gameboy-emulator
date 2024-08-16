@@ -13,7 +13,7 @@
 #include <cstdio>
 #include <iostream>
 
-#include "log.h"
+#include "log-min.h"
 
 
 void log(LogLevel logLevel, const char *fileName, int line, const char *format, va_list args) {

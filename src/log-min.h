@@ -10,8 +10,8 @@
 
 
 
-#ifndef GAMEBOY_EMULATOR_LOG_H
-#define GAMEBOY_EMULATOR_LOG_H
+#ifndef GAMEBOY_EMULATOR_LOG_MIN_H
+#define GAMEBOY_EMULATOR_LOG_MIN_H
 
 #include <cstdarg>
 #include <string>
@@ -46,4 +46,4 @@ const char* convertLogLevelToStr(const LogLevel &logLevel);
 #define INFO(format, ...)       Info(__FILE_NAME__, __LINE__, format, ##__VA_ARGS__)
 #define DEBUG(format, ...)      Debug(__FILE_NAME__, __LINE__, format, ##__VA_ARGS__)
 
-#endif //GAMEBOY_EMULATOR_LOG_H
+#endif //GAMEBOY_EMULATOR_LOG_MIN_H

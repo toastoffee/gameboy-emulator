@@ -9,6 +9,6 @@ add_executable(gameboy_emulator main.cpp
         src/emulator.cpp
         src/emulator.h
         src/type.h
-        src/log.cpp
-        src/log.h
+        src/log-min.cpp
+        src/log-min.h
 )

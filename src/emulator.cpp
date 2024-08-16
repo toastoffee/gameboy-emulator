@@ -11,7 +11,7 @@
 
 
 #include "emulator.h"
-#include "log.h"
+#include "log-min.h"
 
 #include <iostream>
 
