@@ -159,6 +159,83 @@ inline u16 Add16(Emulator* emu, u32 v1, u32 v2) {
     return (u16)(v1 + v2);
 }
 
+// 8-bit ADC (add with carry)
+inline u8 Adc8(Emulator* emu, u16 v1, u16 v2) {
+    u16 c = emu->cpu.fc() ? 1 : 0;
+    u8 r = (u8)(v1 + v2 + c);
+    SetZeroFlag(emu, r);
+    emu->cpu.reset_fn();
+    if(((v1 & 0x0F) + (v2 & 0x0F) + c) > 0x0F) {
+        emu->cpu.set_fh();
+    }
+    else {
+        emu->cpu.reset_fh();
+    }
+
+    if((v1 + v2 + c) > 0xFF) {
+        emu->cpu.set_fc();
+    }
+    else {
+        emu->cpu.reset_fc();
+    }
+    return r;
+}
+
+// 8-bit Sub
+inline u8 Sub8(Emulator* emu, u16 v1, u16 v2) {
+    u8 r = (u8)v1 - (u8)v2;
+    SetZeroFlag(emu, r);
+    emu->cpu.set_fn();
+    if((v1 & 0x0F) < (v2 & 0x0F)) {
+        emu->cpu.set_fh();
+    }
+    else {
+        emu->cpu.reset_fh();
+    }
+
+    if(v1 < v2) {
+        emu->cpu.set_fc();
+    }
+    else {
+        emu->cpu.reset_fc();
+    }
+    return r;
+}
+
+// 8-bit SBC(subtract with carry)
+inline u8 Sbc8(Emulator* emu, u16 v1, u16 v2) {
+    u8 c = emu->cpu.fc() ? 1 : 0;
+    u8 r = (u8)v1 - (u8)v2 - c;
+    SetZeroFlag(emu, r);
+    emu->cpu.set_fn();
+    if((v1 & 0x0F) < ((v2 & 0x0F) + c)) {
+        emu->cpu.set_fh();
+    }
+    else {
+        emu->cpu.reset_fh();
+    }
+
+    if(v1 < (v2 + c)) {
+        emu->cpu.set_fc();
+    }
+    else {
+        emu->cpu.reset_fc();
+    }
+    return r;
+}
+
+// 8-bit AND
+// set N to 0
+// set H to 1
+// set C to 0
+inline u8 And8(Emulator* emu, u8 v1, u8 v2) {
+    u8 r = v1 & v2;
+    SetZeroFlag(emu, r);
+    emu->cpu.reset_fn();
+    emu->cpu.set_fh();
+    emu->cpu.reset_fc();
+    return r;
+}
 
 //! NOP : Do nothing.
 void x00_nop(Emulator* emu)
