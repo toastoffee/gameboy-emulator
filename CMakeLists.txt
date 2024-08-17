@@ -18,4 +18,6 @@ add_executable(gameboy_emulator main.cpp
         src/bit_oper.h
         src/timer.cpp
         src/timer.h
+        src/serial.cpp
+        src/serial.h
 )
