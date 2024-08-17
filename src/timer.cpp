@@ -63,5 +63,22 @@ u8 Timer::BusRead(u16 addr) {
 }
 
 void Timer::BusWrite(u16 addr, u8 data) {
+    assert(addr >= 0xFF04 && addr <= 0xFF07 && "timer register address illegal!");
 
+    switch (addr) {
+        case 0xFF04:
+            div = 0;
+            return;
+        case 0xFF05:
+            tima = data;
+            return;
+        case 0xFF06:
+            tma = data;
+            return;
+        case 0xFF07:
+            tac = 0xF8 | (data & 0x07);
+            return;
+        default:
+            return;
+    }
 }

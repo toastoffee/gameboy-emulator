@@ -59,6 +59,7 @@ void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
     memset(vRam, 0, 8 * kb);
     intFlags = 0;
     intEnableFlags = 0;
+    timer.Init();
 
 }
 
@@ -76,6 +77,7 @@ void Emulator::Tick(u32 machineCycles) {
     u32 tickCycles = machineCycles * GB_CLOCK_CYCLES_PER_MACHINE_CYCLE;
     for (u32 i = 0; i < tickCycles; ++i) {
         ++clockCycles;
+        timer.Tick(this);
     }
 }
 
@@ -100,10 +102,25 @@ u8 Emulator::BusRead(u16 addr) {
         // Working RAM.
         return wRam[addr - 0xC000];
     }
+    if(addr >= 0xFF04 && addr <= 0xFF07)
+    {
+        return timer.BusRead(addr);
+    }
+    if(addr == 0xFF0F)
+    {
+        // IF
+        return intFlags | 0xE0;
+    }
     if(addr >= 0xFF80 && addr <= 0xFFFE)
     {
         return hRam[addr - 0xFF80];
     }
+    if(addr == 0xFFFF)
+    {
+        // IE
+        return intEnableFlags | 0xE0;
+    }
+
     ERROR("Unsupported bus read address: 0x%04X", (u32)addr);
     return 0xFF;
 }
@@ -133,11 +150,29 @@ void Emulator::BusWrite(u16 addr, u8 data) {
         wRam[addr - 0xC000] = data;
         return;
     }
+    if(addr >= 0xFF04 && addr <= 0xFF07)
+    {
+        timer.BusWrite(addr, data);
+        return;
+    }
+    if(addr == 0xFF0F)
+    {
+        // IF
+        intFlags = data & 0x1F;
+        return;
+    }
     if(addr >= 0xFF80 && addr <= 0xFFFE)
     {
         // High RAM.
         hRam[addr - 0xFF80] = data;
         return;
     }
+    if(addr == 0xFFFF)
+    {
+        // IE
+        intEnableFlags = data & 0x1F;
+        return;
+    }
+
     ERROR("Unsupported bus write address: 0x%04X", (u32)addr);
 }

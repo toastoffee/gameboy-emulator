@@ -19,7 +19,7 @@
 class Emulator;
 
 class Timer {
-
+public:
     //! 0xFF04
     //! Only the high 8-bit is accessible via bus, thus behaves like incrementing at 16384Hz (once per 256 clock cycles).
     //! Writing any value to this resets the value to 0.

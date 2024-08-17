@@ -16,6 +16,7 @@
 #include "cartridge.h"
 #include "memory"
 #include "cpu.h"
+#include "timer.h"
 
 class Emulator {
 public:
@@ -36,9 +37,10 @@ public:
 
     //! 0xFF0F - The interruption flags
     u8 intFlags;
-
     //! 0xFFFF - The interruption enabling flags
     u8 intEnableFlags;
+
+    Timer timer;
 
 public:
     ~Emulator();
