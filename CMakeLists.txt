@@ -15,6 +15,7 @@ add_executable(gameboy_emulator main.cpp
         src/cpu.h
         src/instruction.cpp
         src/instruction.h
-        src/bit_oper.cpp
         src/bit_oper.h
+        src/timer.cpp
+        src/timer.h
 )
