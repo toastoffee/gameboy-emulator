@@ -34,6 +34,12 @@ public:
     byte wRam[8 * kb];  // working ram
     byte hRam[128];     // high ram
 
+    //! 0xFF0F - The interruption flags
+    u8 intFlags;
+
+    //! 0xFFFF - The interruption enabling flags
+    u8 intEnableFlags;
+
 public:
     ~Emulator();
 
@@ -49,5 +55,10 @@ public:
     void BusWrite(u16 addr, u8 data);
 };
 
+constexpr u8 INT_VBLANK = 1;
+constexpr u8 INT_LCD_STAT = 2;
+constexpr u8 INT_TIMER = 4;
+constexpr u8 INT_SERIAL = 8;
+constexpr u8 INT_JOYPAD = 16;
 
 #endif //GAMEBOY_EMULATOR_EMULATOR_H

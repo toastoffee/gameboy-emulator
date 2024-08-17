@@ -33,6 +33,9 @@ public:
 
     bool halted;    // is CPU halted
 
+    bool isInterruptMasterEnabled;       // interrupt master enable flag
+    u8 interruptMasterEnablingCountdown; // interrupt master enabling countdown
+
     u16 af() const { return (((u16)a) << 8) + (u16)f ; }
     u16 bc() const { return (((u16)b) << 8) + (u16)c ; }
     u16 de() const { return (((u16)d) << 8) + (u16)e ; }
@@ -62,6 +65,11 @@ public:
 
     // enable interrupt master
     void EnableInterruptMaster();
+
+    // disable interrupt master
+    void DisableInterruptMaster();
+
+    void ServiceInterrupt(Emulator* emu);
 };
 
 

@@ -57,6 +57,8 @@ void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
     // set the ram
     memset(wRam, 0, 8 * kb);
     memset(vRam, 0, 8 * kb);
+    intFlags = 0;
+    intEnableFlags = 0;
 
 }
 
