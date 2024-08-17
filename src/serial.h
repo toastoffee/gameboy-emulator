@@ -21,6 +21,7 @@
 class Emulator;
 
 class Serial {
+public:
     //! 0xFF01 Serial transfer data.
     u8 sb;
 

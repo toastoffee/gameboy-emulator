@@ -60,6 +60,7 @@ void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
     intFlags = 0;
     intEnableFlags = 0;
     timer.Init();
+    serial.Init();
 
 }
 
@@ -78,6 +79,12 @@ void Emulator::Tick(u32 machineCycles) {
     for (u32 i = 0; i < tickCycles; ++i) {
         ++clockCycles;
         timer.Tick(this);
+
+        if((clockCycles % 512) == 0)
+        {
+            // Serial is ticked at 8192Hz
+            serial.Tick(this);
+        }
     }
 }
 
@@ -101,6 +108,10 @@ u8 Emulator::BusRead(u16 addr) {
     {
         // Working RAM.
         return wRam[addr - 0xC000];
+    }
+    if(addr >= 0xFF01 && addr <= 0xFF02)
+    {
+        return serial.BusRead(addr);
     }
     if(addr >= 0xFF04 && addr <= 0xFF07)
     {
@@ -148,6 +159,11 @@ void Emulator::BusWrite(u16 addr, u8 data) {
     {
         // Working RAM.
         wRam[addr - 0xC000] = data;
+        return;
+    }
+    if(addr >= 0xFF01 && addr <= 0xFF02)
+    {
+        serial.BusWrite(addr, data);
         return;
     }
     if(addr >= 0xFF04 && addr <= 0xFF07)

@@ -53,6 +53,7 @@ u8 Serial::BusRead(u16 addr) {
     assert(addr >= 0xFF01 && addr <= 0xFF02 && "serial register address illegal!");
     if(addr == 0xFF01) return sb;
     if(addr == 0xFF02) return sc;
+    return 0;
 }
 
 void Serial::BusWrite(u16 addr, u8 data) {

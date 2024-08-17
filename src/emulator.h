@@ -17,6 +17,7 @@
 #include "memory"
 #include "cpu.h"
 #include "timer.h"
+#include "serial.h"
 
 class Emulator {
 public:
@@ -41,6 +42,7 @@ public:
     u8 intEnableFlags;
 
     Timer timer;
+    Serial serial;
 
 public:
     ~Emulator();
