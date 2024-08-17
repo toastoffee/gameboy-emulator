@@ -21,7 +21,7 @@ inline constexpr u16 MakeU16(u8 low, u8 high) {
 // reads 16-bit immediate data.
 // cpu of Game Boy is little endian (low Byte data at low, high Byte data at high)
 inline u16 ReadU16(Emulator* emu) {
-    u16 r = MakeU16(emu->BusRead(emu->cpu.pc), emu->BusRead(emu->cpu.pc+1));
+    u16 r = MakeU16(emu->BusRead(emu->cpu.pc), emu->BusRead(emu->cpu.pc + 1));
     emu->cpu.pc += 2;
     return r;
 }
@@ -77,6 +77,88 @@ inline u16 Pop16(Emulator* emu) {
     emu->cpu.sp += 2;
     return MakeU16(lo, hi);
 }
+
+// 8-bit increase
+// if overflowed, then set Z to 1, else 0
+// set N to 0
+// if carry happends at 3-bit to 4-bit, then set H to 1, else 0
+inline void Inc8(Emulator* emu, u8& v) {
+    ++v;
+    SetZeroFlag(emu, v);
+    emu->cpu.reset_fn();
+    if((v & 0x0F) == 0x00) {
+        emu->cpu.set_fh();
+    }
+    else {
+        emu->cpu.reset_fh();
+    }
+}
+
+// 8-bit increase
+// if overflowed, then set Z to 1, else 0
+// set N to 1
+// if carry happens at 4-bit to 3-bit, then set H to 1, else 0
+inline void Dec8(Emulator* emu, u8& v) {
+    --v;
+    SetZeroFlag(emu, v);
+    emu->cpu.set_fn();
+    if((v & 0x0F) == 0x0F) {
+        emu->cpu.set_fh();
+    }
+    else {
+        emu->cpu.reset_fh();
+    }
+}
+
+// 8-bit add
+// if overflowed, then set Z to 1, else 0
+// set N to 0
+// if carry happens at 3-bit to 4-bit, then set H to 1, else 0
+// if carry happens at 7-bit to 8-bit, then set C to 1, else 0
+inline u8 Add8(Emulator* emu, u16 v1, u16 v2) {
+    u8 r = (u8)(v1 + v2);
+    SetZeroFlag(emu, r);
+    emu->cpu.reset_fn();
+    if((v1 & 0x0F) + (v2 & 0x0F) > 0x0F) {
+        emu->cpu.set_fh();
+    }
+    else {
+        emu->cpu.reset_fh();
+    }
+
+    if(v1 + v2 > 0xFF) {
+        emu->cpu.set_fc();
+    }
+    else {
+        emu->cpu.reset_fc();
+    }
+    return r;
+}
+
+// 16-bit add
+// set N to 0
+// if carry happens at 11-bit to 12-bit, then set H to 1, else 0
+// if carry happens at 15-bit to 16-bit, then set C to 1, else 0
+// don't modify Z
+inline u16 Add16(Emulator* emu, u32 v1, u32 v2) {
+    emu->cpu.reset_fn();
+    if((v1 & 0xFFF) + (v2 & 0xFFF) > 0xFFF) {
+        emu->cpu.set_fh();
+    }
+    else {
+        emu->cpu.reset_fh();
+    }
+
+    if(v1 + v2 > 0xFFFF) {
+        emu->cpu.set_fc();
+    }
+    else {
+        emu->cpu.reset_fc();
+    }
+
+    return (u16)(v1 + v2);
+}
+
 
 //! NOP : Do nothing.
 void x00_nop(Emulator* emu)
