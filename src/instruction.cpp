@@ -237,6 +237,27 @@ inline u8 And8(Emulator* emu, u8 v1, u8 v2) {
     return r;
 }
 
+// 8-bit XOR
+inline u8 Xor8(Emulator* emu, u8 v1, u8 v2) {
+    u8 r = v1 ^ v2;
+    SetZeroFlag(emu, r);
+    emu->cpu.reset_fn();
+    emu->cpu.reset_fh();
+    emu->cpu.reset_fc();
+    return r;
+}
+
+// 8-bit OR
+inline u8 Or8(Emulator* emu, u8 v1, u8 v2) {
+    u8 r = v1 | v2;
+    SetZeroFlag(emu, r);
+    emu->cpu.reset_fn();
+    emu->cpu.reset_fh();
+    emu->cpu.reset_fc();
+    return r;
+}
+
+
 //! NOP : Do nothing.
 void x00_nop(Emulator* emu)
 {
