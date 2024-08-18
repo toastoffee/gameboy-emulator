@@ -17,8 +17,10 @@
 
 
 class DebugWindow {
+public:
+    bool show = false;
 
-
+    void gui();
 };
 
 
