@@ -3,6 +3,9 @@ project(gameboy_emulator)
 
 set(CMAKE_CXX_STANDARD 11)
 
+include_directories(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/src
+                                    ${PROJECT_SOURCE_DIR}/third_party)
+
 add_executable(gameboy_emulator main.cpp
         src/cartridge.cpp
         src/cartridge.h
@@ -25,4 +28,6 @@ add_executable(gameboy_emulator main.cpp
         third_party/imgui/imgui_draw.cpp
         third_party/imgui/imgui_tables.cpp
         third_party/imgui/imgui_widgets.cpp
+        src/debug_window.cpp
+        src/debug_window.h
 )
