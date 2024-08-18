@@ -12,11 +12,13 @@
 
 #include "debug_window.h"
 
-void DebugWindow::gui() {
-    if(ImGui::Begin("Debug Window", &show)) {
-        //! TODO: add debug window gui code
-
+void DebugWindow::DrawGui() {
+    if(!show) {
+        return;
     }
+
+    ImGui::Begin("Debug Window");
+    //! TODO: add debug window gui code
 
     ImGui::End();
 }

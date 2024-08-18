@@ -5,7 +5,7 @@
 #include "src/emulator.h"
 #include "src/cartridge.h"
 #include "src/log-min.h"
-
+#include "app.h"
 
 int main() {
 
@@ -37,7 +37,11 @@ int main() {
 //        emulator->Update(fp_s.count());
 //    }
 
+    App app;
+
+    app.Init();
     
+    app.RenderLoop();
 
     return 0;
 }

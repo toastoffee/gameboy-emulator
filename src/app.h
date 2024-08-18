@@ -31,6 +31,8 @@ private:
     DebugWindow _debugWindow;
     Emulator _emulator;
 
+    bool _showOpenCartridgePanel = false;
+
 public:
     ~App();
 
@@ -40,6 +42,9 @@ public:
 
     void DrawGui();
     void DrawMainMenuBar();
+
+    void DrawOpenCartridgePanel();
+    void FileBrowser();
 };
 
 
