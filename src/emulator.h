@@ -44,6 +44,8 @@ public:
     Timer timer;
     Serial serial;
 
+    bool isCartLoaded = false;
+
 public:
     ~Emulator();
 

@@ -16,6 +16,8 @@
 #include "debug_window.h"
 #include "emulator.h"
 
+#include <memory>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -32,6 +34,8 @@ private:
     Emulator _emulator;
 
     bool _showOpenCartridgePanel = false;
+
+    std::unique_ptr<Emulator> emulator;
 
 public:
     ~App();

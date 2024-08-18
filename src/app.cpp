@@ -43,6 +43,7 @@ void App::Init() {
     ImGui_ImplGlfw_InitForOpenGL(_mainWindow, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
+    emulator = std::unique_ptr<Emulator>(new Emulator);
 }
 
 void App::Update() {
@@ -66,8 +67,19 @@ void App::Update() {
 
 
 void App::RenderLoop() {
+
+    auto lastFrame = std::chrono::high_resolution_clock::now();
+
     while(!glfwWindowShouldClose(_mainWindow)) {
         Update();
+
+        if(emulator->isCartLoaded) {
+            auto frame = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> fp_s = frame - lastFrame;
+            lastFrame = frame;
+
+            emulator->Update(fp_s.count());
+        }
     }
 }
 
@@ -121,18 +133,35 @@ void App::DrawOpenCartridgePanel() {
         return;
     }
 
-    int width = 600;
-    int height = 60;
+    int width = 450;
+    int height = 80;
     ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Appearing);
 
     ImGui::Begin("Open Cartridge");
 
     static char cart_path[128] = "../gb/Tennis (World).gb";;
     ImGui::InputText("Cartridge Path", cart_path, IM_ARRAYSIZE(cart_path));
-    ImGui::SameLine();
 
     if(ImGui::Button("Confirm")) {
+        _showOpenCartridgePanel = false;
 
+        // load the cartridge data
+        FILE* file = fopen(cart_path, "rb");
+        if(!file) {
+            assert(false && "failed to open file.");
+        }
+        fseek(file, 0, SEEK_END);
+        long fileSize = ftell(file);
+        fseek(file, 0, SEEK_SET);
+        char* source = new char[fileSize];
+        fread(source, sizeof(byte), fileSize, file);
+        fclose(file);
+
+        emulator->Init(source, fileSize);
+    }
+    ImGui::SameLine();
+    if(ImGui::Button("Cancel")) {
+        _showOpenCartridgePanel = false;
     }
 
     ImGui::End();

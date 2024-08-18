@@ -20,6 +20,7 @@ Emulator::~Emulator() {
         free(romData);
         romData = nullptr;
         romDataSize = 0;
+        isCartLoaded = false;
 
         INFO("Cartridge Unloaded.");
     }
@@ -27,6 +28,8 @@ Emulator::~Emulator() {
 
 void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
     assert(cartridgeData && cartridgeDataSize && "cartridge data is empty!");
+
+    isCartLoaded = true;
 
     // copy cartridge data
     romData = (byte*) malloc(cartridgeDataSize);
