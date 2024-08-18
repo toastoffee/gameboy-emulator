@@ -20,4 +20,9 @@ add_executable(gameboy_emulator main.cpp
         src/timer.h
         src/serial.cpp
         src/serial.h
+
+        third_party/imgui/imgui.cpp
+        third_party/imgui/imgui_draw.cpp
+        third_party/imgui/imgui_tables.cpp
+        third_party/imgui/imgui_widgets.cpp
 )
