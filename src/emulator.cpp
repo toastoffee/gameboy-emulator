@@ -16,14 +16,7 @@
 #include <iostream>
 
 Emulator::~Emulator() {
-    if(romData) {
-        free(romData);
-        romData = nullptr;
-        romDataSize = 0;
-        isCartLoaded = false;
-
-        INFO("Cartridge Unloaded.");
-    }
+    Close();
 }
 
 void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
@@ -194,4 +187,15 @@ void Emulator::BusWrite(u16 addr, u8 data) {
     }
 
     ERROR("Unsupported bus write address: 0x%04X", (u32)addr);
+}
+
+void Emulator::Close() {
+    if(romData) {
+        free(romData);
+        romData = nullptr;
+        romDataSize = 0;
+        isCartLoaded = false;
+
+        INFO("Cartridge Unloaded.");
+    }
 }

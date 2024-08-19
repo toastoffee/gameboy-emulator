@@ -112,7 +112,7 @@ void App::DrawMainMenuBar() {
             }
             if(ImGui::MenuItem("Close"))
             {
-
+                emulator->Close();
             }
             ImGui::EndMenu();
         }

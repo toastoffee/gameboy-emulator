@@ -50,6 +50,7 @@ public:
     ~Emulator();
 
     void Init(const void* cartridgeData, u64 cartridgeDataSize);
+    void Close();
 
     void Update(f64 deltaTime);
 
