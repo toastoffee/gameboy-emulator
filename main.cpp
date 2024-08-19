@@ -9,11 +9,9 @@
 
 int main() {
 
-    App app;
+    App::GetInstance()->Init();
 
-    app.Init();
-
-    app.RenderLoop();
+    App::GetInstance()->RenderLoop();
 
     return 0;
 }

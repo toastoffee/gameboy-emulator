@@ -156,5 +156,48 @@ void DebugWindow::DrawCpuGui(Emulator* emu) {
                 }
             }
         }
+
+        if(ImGui::CollapsingHeader("CPU Logging"))
+        {
+            if(ImGui::Button("Clear"))
+            {
+                cpuLog.clear();
+            }
+            if(isCpuLogging)
+            {
+                if(ImGui::Button("Stop logging"))
+                {
+                    isCpuLogging = false;
+                }
+            }
+            else
+            {
+                if(ImGui::Button("Start logging"))
+                {
+                    isCpuLogging = true;
+                }
+            }
+            if(ImGui::Button("Save"))
+            {
+//                Window::FileDialogFilter filter;
+//                filter.name = "Text file";
+//                const c8* extension = "txt";
+//                filter.extensions = {&extension, 1};
+//                auto rpath = Window::save_file_dialog("Save", {&filter, 1});
+//                if (succeeded(rpath) && !rpath.get().empty())
+//                {
+//                    if(rpath.get().extension() == Name())
+//                    {
+//                        rpath.get().replace_extension("txt");
+//                    }
+//                    auto f = open_file(rpath.get().encode().c_str(), FileOpenFlag::write, FileCreationMode::create_always);
+//                    if(succeeded(f))
+//                    {
+//                        auto _ = f.get()->write(cpu_log.c_str(), cpu_log.size(), nullptr);
+//                    }
+//                }
+            }
+            ImGui::Text("Log size: %llu bytes.", (u64)cpuLog.size());
+        }
     }
 }

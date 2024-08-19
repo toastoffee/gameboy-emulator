@@ -70,6 +70,8 @@ public:
     void DisableInterruptMaster();
 
     void ServiceInterrupt(Emulator* emu);
+
+    void Log(Emulator* emu);
 };
 
 

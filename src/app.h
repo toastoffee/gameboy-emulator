@@ -25,7 +25,7 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 
 
-class App {
+class App : public Singleton<App> {
 public:
 
     GLFWwindow *_mainWindow;
@@ -49,6 +49,9 @@ public:
 
     void DrawOpenCartridgePanel();
     void FileBrowser();
+
+public:
+    App() = default;
 };
 
 #endif //GAMEBOY_EMULATOR_APP_H

@@ -14,12 +14,17 @@
 #define GAMEBOY_EMULATOR_DEBUG_WINDOW_H
 
 #include <imgui/imgui.h>
+#include <string>
+
+#include "singleton_util.h"
 
 class Emulator;
 
 class DebugWindow {
 public:
     bool show = false;
+    std::string cpuLog;
+    bool isCpuLogging = false;
 
     void DrawGui(Emulator* emu);
 
