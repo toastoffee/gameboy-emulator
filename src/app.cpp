@@ -161,6 +161,27 @@ void App::DrawOpenCartridgePanel() {
         emulator->Init(source, fileSize);
     }
     ImGui::SameLine();
+    if(ImGui::Button("Confirm without playing")) {
+        _showOpenCartridgePanel = false;
+
+        // load the cartridge data
+        FILE* file = fopen(cart_path, "rb");
+        if(!file) {
+            assert(false && "failed to open file.");
+        }
+        fseek(file, 0, SEEK_END);
+        long fileSize = ftell(file);
+        fseek(file, 0, SEEK_SET);
+        char* source = new char[fileSize];
+        fread(source, sizeof(byte), fileSize, file);
+        fclose(file);
+
+        emulator->Init(source, fileSize);
+        if(emulator) {
+            emulator->isPaused = true;
+        }
+    }
+    ImGui::SameLine();
     if(ImGui::Button("Cancel")) {
         _showOpenCartridgePanel = false;
     }
