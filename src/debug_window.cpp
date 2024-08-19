@@ -13,6 +13,7 @@
 #include "debug_window.h"
 #include "app.h"
 #include "instruction.h"
+#include "log-min.h"
 
 void DebugWindow::DrawGui(Emulator* emu) {
     if(!show) {
@@ -23,6 +24,7 @@ void DebugWindow::DrawGui(Emulator* emu) {
     //! TODO: add debug window gui code
 
     DrawCpuGui(emu);
+    DrawSerialGui(emu);
 
     ImGui::End();
 }
@@ -179,6 +181,7 @@ void DebugWindow::DrawCpuGui(Emulator* emu) {
             }
             if(ImGui::Button("Save"))
             {
+                WARN("TODO: log save");
 //                Window::FileDialogFilter filter;
 //                filter.name = "Text file";
 //                const c8* extension = "txt";
@@ -198,6 +201,36 @@ void DebugWindow::DrawCpuGui(Emulator* emu) {
 //                }
             }
             ImGui::Text("Log size: %llu bytes.", (u64)cpuLog.size());
+            ImGui::TextUnformatted(cpuLog.c_str());
+        }
+    }
+}
+
+void DebugWindow::DrawSerialGui(Emulator *emu) {
+    if(emu) {
+        // Read serial data.
+        while(!emu->serial.outputBuffer.empty()) {
+            u8 data = emu->serial.outputBuffer.front();
+            emu->serial.outputBuffer.pop();
+            serialData.push_back(data);
+        }
+    }
+    if(ImGui::CollapsingHeader("Serial data"))
+    {
+        ImGui::Text("Serial Data:");
+        if(ImGui::BeginChild("Serial Data", ImVec2(500.0f, 100.0f), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeX))
+        {
+            auto beginIter = serialData.begin();
+            u8* p1 = beginIter.operator->();
+            auto endIter = serialData.end();
+            u8* p2 = endIter.operator->();
+
+            ImGui::TextUnformatted((c8*)p1,(c8*)p2);
+        }
+        ImGui::EndChild();
+        if(ImGui::Button("Clear"))
+        {
+            serialData.clear();
         }
     }
 }

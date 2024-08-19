@@ -15,8 +15,11 @@
 
 #include <imgui/imgui.h>
 #include <string>
+#include <vector>
 
 #include "singleton_util.h"
+#include "type.h"
+
 
 class Emulator;
 
@@ -26,9 +29,13 @@ public:
     std::string cpuLog;
     bool isCpuLogging = false;
 
+    std::vector<u8> serialData;
+
     void DrawGui(Emulator* emu);
 
     void DrawCpuGui(Emulator* emu);
+
+    void DrawSerialGui(Emulator* emu);
 };
 
 
