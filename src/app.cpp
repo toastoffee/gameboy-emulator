@@ -158,7 +158,8 @@ void App::DrawOpenCartridgePanel() {
 
     ImGui::Begin("Open Cartridge");
 
-    static char cart_path[128] = "../gb/Tennis (World).gb";;
+    // all unit tests under (cpu_instrs/individual) passed
+    static char cart_path[128] = "../gb-test-rom/cpu_instrs/individual/11-op a,(hl).gb";;
     ImGui::InputText("Cartridge Path", cart_path, IM_ARRAYSIZE(cart_path));
 
     if(ImGui::Button("Confirm")) {
