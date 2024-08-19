@@ -117,6 +117,24 @@ void App::DrawMainMenuBar() {
             }
             ImGui::EndMenu();
         }
+        if (ImGui::BeginMenu("Play"))
+        {
+            if(ImGui::MenuItem("Play"))
+            {
+                if(emulator)
+                {
+                    emulator->isPaused = false;
+                }
+            }
+            if(ImGui::MenuItem("Pause"))
+            {
+                if(emulator)
+                {
+                    emulator->isPaused = true;
+                }
+            }
+            ImGui::EndMenu();
+        }
         if (ImGui::BeginMenu("Debug"))
         {
             if(ImGui::MenuItem("Debug Window"))

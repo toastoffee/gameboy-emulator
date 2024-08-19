@@ -13,6 +13,7 @@
 #include "debug_window.h"
 #include "app.h"
 
+
 void DebugWindow::DrawGui(Emulator* emu) {
     if(!show) {
         return;
@@ -138,5 +139,22 @@ void DebugWindow::DrawCpuGui(Emulator* emu) {
             }
             ImGui::DragFloat("CPU Speed Scale", &emu->clockSpeedScale, 0.001f);
         }
+
+//        if(ImGui::CollapsingHeader("CPU Stepping"))
+//        {
+//            bool cpu_stepping_enabled = emu->isPaused;
+//            if(!cpu_stepping_enabled)
+//            {
+//                ImGui::Text("CPU stepping is enabled only when the game is paused.");
+//            }
+//            else
+//            {
+//                ImGui::Text("Next instruction: %s", (emu->BusRead(emu->cpu.pc)));
+//                if(ImGui::Button("Step CPU"))
+//                {
+//                    emu->cpu.step(g_app->emulator.get());
+//                }
+//            }
+//        }
     }
 }
