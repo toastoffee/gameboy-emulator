@@ -15,6 +15,7 @@
 #include "app.h"
 
 void App::Init() {
+
     // GLFW初始化
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -93,7 +94,7 @@ void App::DrawGui() {
     ImGui::NewFrame();
 
     DrawMainMenuBar();
-    _debugWindow.DrawGui();
+    _debugWindow.DrawGui(emulator.get());
     DrawOpenCartridgePanel();
 
     // End GUI

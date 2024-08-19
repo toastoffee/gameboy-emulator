@@ -15,12 +15,15 @@
 
 #include <imgui/imgui.h>
 
+class Emulator;
 
 class DebugWindow {
 public:
     bool show = false;
 
-    void DrawGui();
+    void DrawGui(Emulator* emu);
+
+    void DrawCpuGui(Emulator* emu);
 };
 
 

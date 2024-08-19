@@ -26,7 +26,7 @@
 
 
 class App {
-private:
+public:
 
     GLFWwindow *_mainWindow;
 
@@ -50,6 +50,5 @@ public:
     void DrawOpenCartridgePanel();
     void FileBrowser();
 };
-
 
 #endif //GAMEBOY_EMULATOR_APP_H
