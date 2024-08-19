@@ -152,7 +152,7 @@ void App::DrawOpenCartridgePanel() {
         return;
     }
 
-    int width = 450;
+    int width = 600;
     int height = 80;
     ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Appearing);
 

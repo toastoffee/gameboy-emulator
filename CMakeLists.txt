@@ -48,6 +48,8 @@ add_executable(gameboy_emulator main.cpp
         src/debug_window.h
         src/app.cpp
         src/app.h
+        src/ppu.cpp
+        src/ppu.h
 )
 
 target_link_libraries(
