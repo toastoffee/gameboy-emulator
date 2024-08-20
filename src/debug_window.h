@@ -31,11 +31,17 @@ public:
 
     std::vector<u8> serialData;
 
+    // Tiles inspector
+    
+
+
     void DrawGui(Emulator* emu);
 
     void DrawCpuGui(Emulator* emu);
 
     void DrawSerialGui(Emulator* emu);
+
+    void DrawTilesGui(Emulator* emu);
 };
 
 
