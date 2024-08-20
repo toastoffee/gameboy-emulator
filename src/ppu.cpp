@@ -125,6 +125,25 @@ void PPU::tick_hblank(Emulator* emu)
     }
 }
 
+void PPU::tick_vblank(Emulator* emu)
+{
+    if(line_cycles >= PPU_CYCLES_PER_LINE)
+    {
+        increase_ly(emu);
+        if(ly >= PPU_LINES_PER_FRAME)
+        {
+            // move to next frame.
+            set_mode(PPUMode::OAM_SCAN);
+            ly = 0;
+            if(oam_int_enabled())
+            {
+                emu->intFlags |= INT_LCD_STAT;
+            }
+        }
+        line_cycles = 0;
+    }
+}
+
 void PPU::increase_ly(Emulator* emu)
 {
     ++ly;
