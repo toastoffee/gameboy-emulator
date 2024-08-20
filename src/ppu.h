@@ -56,6 +56,11 @@ class PPU {
     //! 0xFF4B - WX (Window X position plus 7).
     u8 wx;
 
+    // PPU internal state
+
+    //! The number of cycles used for this scan line.
+    u32 line_cycles;
+
     bool enabled() const { return bitTest(&lcdc, 7); }
 
     PPUMode get_mode() const { return (PPUMode)(lcds & 0x03); }

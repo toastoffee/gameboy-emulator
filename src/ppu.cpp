@@ -11,7 +11,7 @@
 
 
 #include "ppu.h"
-
+#include <cassert>
 
 void PPU::init()
 {
@@ -37,13 +37,13 @@ void PPU::tick(Emulator* emu)
 }
 u8 PPU::bus_read(u16 addr)
 {
-    luassert(addr >= 0xFF40 && addr <= 0xFF4B);
+    assert(addr >= 0xFF40 && addr <= 0xFF4B);
     return ((u8*)(&lcdc))[addr - 0xFF40];
 }
 void PPU::bus_write(u16 addr, u8 data)
 {
-    luassert(addr >= 0xFF40 && addr <= 0xFF4B);
-    if(addr == 0xFF40 && enabled() && !bit_test(&data, 7))
+    assert(addr >= 0xFF40 && addr <= 0xFF4B);
+    if(addr == 0xFF40 && enabled() && !bitTest(&data, 7))
     {
         // Reset mode to HBLANK.
         lcds &= 0x7C;
