@@ -57,6 +57,7 @@ void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
     intEnableFlags = 0;
     timer.Init();
     serial.Init();
+    ppu.init();
 
 }
 
@@ -81,6 +82,7 @@ void Emulator::Tick(u32 machineCycles) {
             // Serial is ticked at 8192Hz
             serial.Tick(this);
         }
+        ppu.tick(this);
     }
 }
 
@@ -117,6 +119,10 @@ u8 Emulator::BusRead(u16 addr) {
     {
         // IF
         return intFlags | 0xE0;
+    }
+    if(addr >= 0xFF40 && addr <= 0xFF4B)
+    {
+        return ppu.bus_read(addr);
     }
     if(addr >= 0xFF80 && addr <= 0xFFFE)
     {
@@ -171,6 +177,11 @@ void Emulator::BusWrite(u16 addr, u8 data) {
     {
         // IF
         intFlags = data & 0x1F;
+        return;
+    }
+    if(addr >= 0xFF40 && addr <= 0xFF4B)
+    {
+        ppu.bus_write(addr, data);
         return;
     }
     if(addr >= 0xFF80 && addr <= 0xFFFE)

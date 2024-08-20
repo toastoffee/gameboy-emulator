@@ -31,6 +31,7 @@ constexpr u32 PPU_XRES = 160;
 class Emulator;
 
 class PPU {
+public:
     //! 0xFF40 - LCD control.
     u8 lcdc;
     //! 0xFF41 - LCD status.

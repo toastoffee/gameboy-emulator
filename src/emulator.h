@@ -18,6 +18,7 @@
 #include "cpu.h"
 #include "timer.h"
 #include "serial.h"
+#include "ppu.h"
 
 class Emulator {
 public:
@@ -43,6 +44,8 @@ public:
 
     Timer timer;
     Serial serial;
+    PPU ppu;
+
 
     bool isCartLoaded = false;
 
