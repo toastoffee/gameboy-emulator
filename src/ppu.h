@@ -76,10 +76,17 @@ class PPU {
     bool oam_int_enabled() const { return !!(lcds & (1 << 5)); }
     bool lyc_int_enabled() const { return !!(lcds & (1 << 6)); }
 
+    void increase_ly(Emulator* emu);
+
     void init();
     void tick(Emulator* emu);
     u8 bus_read(u16 addr);
     void bus_write(u16 addr, u8 data);
+
+    void tick_oam_scan(Emulator* emu);
+    void tick_drawing(Emulator* emu);
+    void tick_hblank(Emulator* emu);
+    void tick_vblank(Emulator* emu);
 };
 
 

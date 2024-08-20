@@ -11,6 +11,8 @@
 
 
 #include "ppu.h"
+#include "emulator.h"
+
 #include <cassert>
 
 void PPU::init()
@@ -34,6 +36,21 @@ void PPU::init()
 void PPU::tick(Emulator* emu)
 {
     /*TODO*/
+    if(!enabled()) return;
+    ++line_cycles;
+    switch(get_mode())
+    {
+        case PPUMode::OAM_SCAN:
+            tick_oam_scan(emu); break;
+        case PPUMode::DRAWING:
+            tick_drawing(emu); break;
+        case PPUMode::H_BLANK:
+            tick_hblank(emu); break;
+        case PPUMode::V_BLANK:
+            tick_vblank(emu); break;
+        default:
+            break;
+    }
 }
 u8 PPU::bus_read(u16 addr)
 {
@@ -58,4 +75,69 @@ void PPU::bus_write(u16 addr, u8 data)
     }
     if(addr == 0xFF44) return; // read only.
     ((u8*)(&lcdc))[addr - 0xFF40] = data;
+}
+
+void PPU::tick_oam_scan(Emulator* emu)
+{
+    // TODO
+    if(line_cycles >= 80)
+    {
+        set_mode(PPUMode::DRAWING);
+    }
+}
+
+void PPU::tick_drawing(Emulator* emu)
+{
+    // TODO
+    if(line_cycles >= 369)
+    {
+        set_mode(PPUMode::H_BLANK);
+        if(hblank_int_enabled())
+        {
+            emu->intFlags |= INT_LCD_STAT;
+        }
+    }
+}
+
+void PPU::tick_hblank(Emulator* emu)
+{
+    if(line_cycles >= PPU_CYCLES_PER_LINE)
+    {
+        increase_ly(emu);
+        if(ly >= PPU_YRES)
+        {
+            set_mode(PPUMode::V_BLANK);
+            emu->intFlags |= INT_VBLANK;
+            if(vblank_int_enabled())
+            {
+                emu->intFlags |= INT_LCD_STAT;
+            }
+        }
+        else
+        {
+            set_mode(PPUMode::OAM_SCAN);
+            if(oam_int_enabled())
+            {
+                emu->intFlags |= INT_LCD_STAT;
+            }
+        }
+        line_cycles = 0;
+    }
+}
+
+void PPU::increase_ly(Emulator* emu)
+{
+    ++ly;
+    if(ly == lyc)
+    {
+        set_lyc_flag();
+        if(lyc_int_enabled())
+        {
+            emu->intFlags |= INT_LCD_STAT;
+        }
+    }
+    else
+    {
+        reset_lyc_flag();
+    }
 }
