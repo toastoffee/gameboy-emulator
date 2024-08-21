@@ -291,20 +291,8 @@ void DebugWindow::DrawTilesGui(Emulator *emu) {
         {
             u32 width = 16 * 8;
             u32 height = 24 * 8;
-            // Create texture if not present.
-            if(!tileTexData)
-            {
-                tileTexData = new unsigned char[width * height];
-
-                if(!tileTexData)
-                {
-                    ERROR("LunaGB", "Failed to create texture for tile inspector");
-                    return;
-                }
-            }
 
             // Update texture data.
-            u32 num_pixel_bytes = width * height * 4;
             u32 row_pitch = width * 4;
             for(u32 y = 0; y < height / 8; ++y)
             {

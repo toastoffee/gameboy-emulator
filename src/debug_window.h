@@ -30,10 +30,13 @@ public:
     std::string cpuLog;
     bool isCpuLogging = false;
 
+    static constexpr int WIDTH = 16 * 8;
+    static constexpr int HEIGHT = 24 * 8;
+
     std::vector<u8> serialData;
 
     // Tiles inspector
-    unsigned char* tileTexData;
+    unsigned char* tileTexData = new unsigned char[WIDTH * HEIGHT * 4];
 
     unsigned int tileTex;
 
