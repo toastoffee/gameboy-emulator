@@ -14,6 +14,7 @@
 #define GAMEBOY_EMULATOR_DEBUG_WINDOW_H
 
 #include <imgui/imgui.h>
+
 #include <string>
 #include <vector>
 
@@ -32,8 +33,9 @@ public:
     std::vector<u8> serialData;
 
     // Tiles inspector
-    
+    unsigned char* tileTexData;
 
+    unsigned int tileTex;
 
     void DrawGui(Emulator* emu);
 

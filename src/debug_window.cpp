@@ -25,6 +25,7 @@ void DebugWindow::DrawGui(Emulator* emu) {
 
     DrawCpuGui(emu);
     DrawSerialGui(emu);
+    DrawTilesGui(emu);
 
     ImGui::End();
 }
@@ -235,6 +236,54 @@ void DebugWindow::DrawSerialGui(Emulator *emu) {
     }
 }
 
+inline void decode_tile_line(const u8 data[2], u8 dst_color[32])
+{
+    for(i32 b = 7; b >= 0; --b)
+    {
+        u8 lo = (!!(data[0] & (1 << b)));
+        u8 hi = (!!(data[1] & (1 << b))) << 1;
+        u8 color = hi | lo;
+        // convert color.
+        switch(color)
+        {
+            case 0: color = 0xFF; break;
+            case 1: color = 0xAA; break;
+            case 2: color = 0x55; break;
+            case 3: color = 0x00; break;
+            default: break;
+        }
+        dst_color[(7 - b) * 4] = color;
+        dst_color[(7 - b) * 4 + 1] = color;
+        dst_color[(7 - b) * 4 + 2] = color;
+        dst_color[(7 - b) * 4 + 3] = 0xFF;
+    }
+}
+
+bool LoadTextureFromMemory(const void* data, GLuint* out_texture, int image_width, int image_height)
+{
+    // Load from file
+
+    if (data == NULL)
+        return false;
+
+    // Create a OpenGL texture identifier
+    GLuint image_texture;
+    glGenTextures(1, &image_texture);
+    glBindTexture(GL_TEXTURE_2D, image_texture);
+
+    // Setup filtering parameters for display
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Upload pixels into texture
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image_width, image_height, 0, GL_RGBA8, GL_UNSIGNED_BYTE, data);
+
+    *out_texture = image_texture;
+
+    return true;
+}
+
 void DebugWindow::DrawTilesGui(Emulator *emu) {
     if(emu)
     {
@@ -243,46 +292,36 @@ void DebugWindow::DrawTilesGui(Emulator *emu) {
             u32 width = 16 * 8;
             u32 height = 24 * 8;
             // Create texture if not present.
-            if(!tile_texture)
+            if(!tileTexData)
             {
-                auto tex = g_app->rhi_device->new_texture(RHI::MemoryType::local,
-                                                          RHI::TextureDesc::tex2d(RHI::Format::rgba8_unorm, RHI::TextureUsageFlag::copy_dest | RHI::TextureUsageFlag::read_texture,
-                                                                                  width, height, 1, 1));
-                if(failed(tex))
+                tileTexData = new unsigned char[width * height];
+
+                if(!tileTexData)
                 {
-                    log_error("LunaGB", "Failed to create texture for tile inspector : %s", explain(tex.errcode()));
+                    ERROR("LunaGB", "Failed to create texture for tile inspector");
                     return;
                 }
-                tile_texture = tex.get();
             }
+
             // Update texture data.
-            usize num_pixel_bytes = width * height * 4;
-            usize row_pitch = width * 4;
-            Blob pixel_bytes(num_pixel_bytes);
-            u8* pixels = pixel_bytes.data();
+            u32 num_pixel_bytes = width * height * 4;
+            u32 row_pitch = width * 4;
             for(u32 y = 0; y < height / 8; ++y)
             {
                 for(u32 x = 0; x < width / 8; ++x)
                 {
                     u32 tile_index = y * width / 8 + x;
-                    usize tile_color_begin = y * row_pitch * 8 + x * 8 * 4;
+                    u32 tile_color_begin = y * row_pitch * 8 + x * 8 * 4;
                     for(u32 line = 0; line < 8; ++line)
                     {
-                        decode_tile_line(g_app->emulator->vram + tile_index * 16 + line * 2, pixels + tile_color_begin + line * row_pitch);
+                        decode_tile_line(emu->vRam + tile_index * 16 + line * 2, tileTexData + tile_color_begin + line * row_pitch);
                     }
                 }
             }
-            auto r = RHI::copy_resource_data(g_app->cmdbuf, {
-                    RHI::CopyResourceData::write_texture(tile_texture, {0, 0}, 0, 0, 0, pixels, row_pitch, num_pixel_bytes, width, height, 1)
-            });
-            if(failed(r))
-            {
-                log_error("LunaGB", "Failed to upload texture data for tile inspector : %s", explain(r.errcode()));
-                ImGui::End();
-                return;
-            }
-            // Draw.
-            ImGui::Image(tile_texture, {(f32)(width * 4), (f32)(height * 4)});
+
+            LoadTextureFromMemory(tileTexData, (GLuint*)&tileTex, width, height);
+              // Draw.
+            ImGui::Image((void*)(intptr_t)tileTex, {(f32)(width * 4), (f32)(height * 4)});
         }
     }
 }
