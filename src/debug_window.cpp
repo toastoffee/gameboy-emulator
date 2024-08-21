@@ -9,6 +9,7 @@
   */
 
 
+#include <fstream>
 
 #include "debug_window.h"
 #include "app.h"
@@ -259,38 +260,58 @@ inline void decode_tile_line(const u8 data[2], u8 dst_color[32])
     }
 }
 
+
 bool LoadTextureFromMemory(const void* data, GLuint* out_texture, int image_width, int image_height)
 {
-    // Load from file
+    if(!out_texture) {
+        // Create a OpenGL texture identifier
+        glGenTextures(1, out_texture);
+        glBindTexture(GL_TEXTURE_2D, *out_texture);
 
-    if (data == NULL)
-        return false;
-
-    // Create a OpenGL texture identifier
-    GLuint image_texture;
-    glGenTextures(1, &image_texture);
-    glBindTexture(GL_TEXTURE_2D, image_texture);
-
-    // Setup filtering parameters for display
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // Setup filtering parameters for display
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
 
     // Upload pixels into texture
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image_width, image_height, 0, GL_RGBA8, GL_UNSIGNED_BYTE, data);
-
-    *out_texture = image_texture;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
     return true;
+}
+
+inline void record_tex_data(const void* data, int dataSize) {
+    std::ofstream binFile("img.bin", std::ios::out | std::ios::binary);
+
+    binFile.write((const char*)data, dataSize);
+
+    binFile.close();
+}
+
+inline void save_as_ppm(const unsigned char* data, int width, int height) {
+
+    std::ofstream binFile("img.ppm", std::ios::out | std::ios::binary);
+    const char* header = "P6 128 192 255 ";
+    binFile.write(header, strlen(header));
+
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            int idx = i * width * 4 + j * 4;
+            binFile.write((const char*)data + idx, 3);
+        }
+    }
+
+    binFile.close();
 }
 
 void DebugWindow::DrawTilesGui(Emulator *emu) {
     if(emu)
     {
+        u32 width = 16 * 8;
+        u32 height = 24 * 8;
+
         if(ImGui::CollapsingHeader("Tiles"))
         {
-            u32 width = 16 * 8;
-            u32 height = 24 * 8;
 
             // Update texture data.
             u32 row_pitch = width * 4;
@@ -310,6 +331,13 @@ void DebugWindow::DrawTilesGui(Emulator *emu) {
             LoadTextureFromMemory(tileTexData, (GLuint*)&tileTex, width, height);
               // Draw.
             ImGui::Image((void*)(intptr_t)tileTex, {(f32)(width * 4), (f32)(height * 4)});
+
+            if(ImGui::Button("record img binary")) {
+                record_tex_data(tileTexData, width * height * 4);
+            }
+            if(ImGui::Button("record img ppm")) {
+                save_as_ppm(tileTexData, (int)width, (int)height);
+            }
         }
     }
 }
