@@ -15,6 +15,19 @@
 
 #include <cassert>
 
+inline u8 apply_palette(u8 color, u8 palette)
+{
+    switch(color)
+    {
+        case 0: color = palette & 0x03; break;
+        case 1: color = ((palette >> 2) & 0x03); break;
+        case 2: color = ((palette >> 4) & 0x03); break;
+        case 3: color = ((palette >> 6) & 0x03); break;
+        default: break;
+    }
+    return color;
+}
+
 void PPU::init()
 {
     lcdc = 0x91;
@@ -32,6 +45,8 @@ void PPU::init()
     set_mode(PPUMode::OAM_SCAN);
 
     line_cycles = 0;
+    memset(pixels, 0, sizeof(pixels));
+    current_back_buffer = 0;
 }
 void PPU::tick(Emulator* emu)
 {
@@ -88,15 +103,35 @@ void PPU::tick_oam_scan(Emulator* emu)
 
 void PPU::tick_drawing(Emulator* emu)
 {
-    // TODO
-    if(line_cycles >= 369)
+    // The fetcher is ticked once per 2 cycles.
+    if((line_cycles % 2) == 0)
     {
-        set_mode(PPUMode::H_BLANK);
-        if(hblank_int_enabled())
+        switch(fetch_state)
         {
-            emu->intFlags |= INT_LCD_STAT;
+            case PPUFetchState::TILE:
+                fetcher_get_tile(emu); break;
+            case PPUFetchState::DATA0:
+                fetcher_get_data(emu, 0); break;
+            case PPUFetchState::DATA1:
+                fetcher_get_data(emu, 1); break;
+            case PPUFetchState::IDLE:
+                fetch_state = PPUFetchState::PUSH; break;
+            case PPUFetchState::PUSH:
+                fetcher_push_pixels(); break;
+            default: break;
+        }
+        if(draw_x >= PPU_XRES)
+        {
+            assert(line_cycles >= 252 && line_cycles <= 369);
+            set_mode(PPUMode::H_BLANK);
+            if(hblank_int_enabled())
+            {
+                emu->intFlags |= INT_LCD_STAT;
+            }
         }
     }
+    // LCD driver is ticked once per cycle.
+    lcd_draw_pixel();
 }
 
 void PPU::tick_hblank(Emulator* emu)
@@ -112,6 +147,7 @@ void PPU::tick_hblank(Emulator* emu)
             {
                 emu->intFlags |= INT_LCD_STAT;
             }
+            current_back_buffer = (current_back_buffer + 1) % 2;
         }
         else
         {
@@ -135,6 +171,7 @@ void PPU::tick_vblank(Emulator* emu)
             // move to next frame.
             set_mode(PPUMode::OAM_SCAN);
             ly = 0;
+            window_line = 0;
             if(oam_int_enabled())
             {
                 emu->intFlags |= INT_LCD_STAT;
@@ -146,6 +183,12 @@ void PPU::tick_vblank(Emulator* emu)
 
 void PPU::increase_ly(Emulator* emu)
 {
+    if(window_visible() && ly >= wy &&
+       (u16)ly < (u16)(wy + PPU_YRES))
+    {
+        ++window_line;
+    }
+
     ++ly;
     if(ly == lyc)
     {
@@ -158,5 +201,65 @@ void PPU::increase_ly(Emulator* emu)
     else
     {
         reset_lyc_flag();
+    }
+}
+
+void PPU::fetcher_get_tile(Emulator* emu)
+{
+    if(bg_window_enable())
+    {
+        if(fetch_window)
+        {
+            fetcher_get_window_tile(emu);
+        }
+        else
+        {
+            fetcher_get_background_tile(emu);
+        }
+    }
+    fetch_state = PPUFetchState::DATA0;
+    fetch_x += 8;
+}
+void PPU::fetcher_get_data(Emulator* emu, u8 data_index)
+{
+    if(bg_window_enable())
+    {
+        bgw_fetched_data[data_index] = emu->BusRead(bgw_data_area() + bgw_data_addr_offset + data_index);
+    }
+    if(data_index == 0) fetch_state = PPUFetchState::DATA1;
+    else fetch_state = PPUFetchState::IDLE;
+}
+void PPU::fetcher_push_pixels()
+{
+    bool pushed = false;
+    if(bgw_queue.size() < 8)
+    {
+        fetcher_push_bgw_pixels();
+        pushed = true;
+    }
+    if(pushed)
+    {
+        fetch_state = PPUFetchState::TILE;
+    }
+}
+void PPU::lcd_draw_pixel()
+{
+    // The LCD driver is drived by BGW queue only, it works when at least 8 pixels are in BGW queue.
+    if(bgw_queue.size() >= 8)
+    {
+        if (draw_x >= PPU_XRES) return;
+        BGWPixel bgw_pixel = bgw_queue.front();
+        bgw_queue.pop();
+        // Calculate background color.
+        u8 bg_color = apply_palette(bgw_pixel.color, bgw_pixel.palette);
+        // Output pixel.
+        switch(bg_color)
+        {
+            case 0: set_pixel(draw_x, ly, 153, 161, 120, 255); break;
+            case 1: set_pixel(draw_x, ly, 87, 93, 67, 255); break;
+            case 2: set_pixel(draw_x, ly, 42, 46, 32, 255); break;
+            case 3: set_pixel(draw_x, ly, 10, 10, 2, 255); break;
+        }
+        ++draw_x;
     }
 }

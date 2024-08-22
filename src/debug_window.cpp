@@ -261,25 +261,6 @@ inline void decode_tile_line(const u8 data[2], u8 dst_color[32])
 }
 
 
-bool LoadTextureFromMemory(const void* data, GLuint* out_texture, int image_width, int image_height)
-{
-    if(!out_texture) {
-        // Create a OpenGL texture identifier
-        glGenTextures(1, out_texture);
-        glBindTexture(GL_TEXTURE_2D, *out_texture);
-
-        // Setup filtering parameters for display
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
-
-    // Upload pixels into texture
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-    return true;
-}
-
 inline void record_tex_data(const void* data, int dataSize) {
     std::ofstream binFile("img.bin", std::ios::out | std::ios::binary);
 
