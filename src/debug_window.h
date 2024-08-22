@@ -40,6 +40,7 @@ public:
     unsigned char* tileTexData = new unsigned char[WIDTH * HEIGHT * 4];
 
     unsigned int tileTex;
+    ImGuiPixelRenderer pixelRenderer;
 
     void DrawGui(Emulator* emu);
 

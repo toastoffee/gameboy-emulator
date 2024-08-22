@@ -328,9 +328,9 @@ void DebugWindow::DrawTilesGui(Emulator *emu) {
                 }
             }
 
-            LoadTextureFromMemory(tileTexData, (GLuint*)&tileTex, width, height);
+            pixelRenderer.GeneTex(tileTexData, width, height, ColorMode::RGBA);
               // Draw.
-            ImGui::Image((void*)(intptr_t)tileTex, {(f32)(width * 4), (f32)(height * 4)});
+            pixelRenderer.Render();
 
             if(ImGui::Button("record img binary")) {
                 record_tex_data(tileTexData, width * height * 4);
