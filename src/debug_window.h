@@ -20,6 +20,7 @@
 
 #include "singleton_util.h"
 #include "type.h"
+#include "imgui_pixel_renderer.h"
 
 
 class Emulator;
