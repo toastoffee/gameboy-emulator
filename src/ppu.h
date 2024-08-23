@@ -150,12 +150,12 @@ public:
 
     //! The FIFO queue for objects (sprites).
     std::queue<ObjectPixel> obj_queue;
-//! The loaded sprite data during OAM scan stage, sorted by their X position.
+    //! The loaded sprite data during OAM scan stage, sorted by their X position.
     std::vector<OAMEntry> sprites;
-//! The sprites used in the current fetch.
+    //! The sprites used in the current fetch.
     OAMEntry fetched_sprites[3];
     u8 num_fetched_sprites;
-//! The fetched sprite data in LCDFetchState::data0 and LCDFetchState::data1 step.
+    //! The fetched sprite data in LCDFetchState::data0 and LCDFetchState::data1 step.
     u8 sprite_fetched_data[6];
 
     bool enabled() const { return bitTest(&lcdc, 7); }
@@ -230,6 +230,9 @@ public:
     void fetcher_get_background_tile(Emulator* emu);
     void fetcher_push_bgw_pixels();
     void fetcher_get_window_tile(Emulator* emu);
+    void fetcher_get_sprite_tile(Emulator* emu);
+    void fetcher_get_sprite_data(Emulator* emu, u8 data_index);
+    void fetcher_push_sprite_pixels(u8 push_begin, u8 push_end);
 
     void tick_dma(Emulator* emu);
 

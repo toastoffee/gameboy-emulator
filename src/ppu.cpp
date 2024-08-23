@@ -87,6 +87,7 @@ void PPU::bus_write(u16 addr, u8 data)
         lcds &= 0x7C;
         // Reset LY.
         ly = 0;
+        window_line = 0;
         line_cycles = 0;
     }
     if(addr == 0xFF41) // the lower 3 bits are read only.
@@ -115,6 +116,35 @@ void PPU::tick_oam_scan(Emulator* emu)
         fetch_x = 0;
         push_x = 0;
         draw_x = 0;
+    }
+    // Can be any tick between 0 and 79.
+    // The real PPU finishes OAM scanning in 80 cycles, but we can do it in one cycle.
+    if(line_cycles == 1)
+    {
+        sprites.clear();
+        sprites.reserve(10);
+        u8 sprite_height = obj_height();
+        // Scan all 40 entries.
+        for(u8 i = 0; i < 40; ++i)
+        {
+            if(sprites.size() >= 10)
+            {
+                // We can hold at most 10 sprites per line.
+                break;
+            }
+            OAMEntry* entry = (OAMEntry*)(emu->oam) + i;
+            // Check if this sprite is in this scanline.
+            if(entry->y <= ly + 16 && entry->y + sprite_height > ly + 16)
+            {
+                auto iter = sprites.begin();
+                while(iter != sprites.end())
+                {
+                    if(iter->x > entry->x) break;
+                    ++iter;
+                }
+                sprites.insert(iter, *entry);
+            }
+        }
     }
 }
 
@@ -237,6 +267,14 @@ void PPU::fetcher_get_tile(Emulator* emu)
             fetcher_get_background_tile(emu);
         }
     }
+    else
+    {
+        tile_x_begin = fetch_x;
+    }
+    if(obj_enable())
+    {
+        fetcher_get_sprite_tile(emu);
+    }
     fetch_state = PPUFetchState::DATA0;
     fetch_x += 8;
 }
@@ -247,6 +285,10 @@ void PPU::fetcher_get_data(Emulator* emu, u8 data_index)
     {
         bgw_fetched_data[data_index] = emu->BusRead(bgw_data_area() + bgw_data_addr_offset + data_index);
     }
+    if(obj_enable())
+    {
+        fetcher_get_sprite_data(emu, data_index);
+    }
     if(data_index == 0) fetch_state = PPUFetchState::DATA1;
     else fetch_state = PPUFetchState::IDLE;
 }
@@ -256,7 +298,10 @@ void PPU::fetcher_push_pixels()
     bool pushed = false;
     if(bgw_queue.size() < 8)
     {
+        u8 push_begin = push_x;
         fetcher_push_bgw_pixels();
+        u8 push_end = push_x;
+        fetcher_push_sprite_pixels(push_begin, push_end);
         pushed = true;
     }
     if(pushed)
@@ -272,10 +317,20 @@ void PPU::lcd_draw_pixel()
         if (draw_x >= PPU_XRES) return;
         BGWPixel bgw_pixel = bgw_queue.front();
         bgw_queue.pop();
+        ObjectPixel obj_pixel = obj_queue.front();
+        obj_queue.pop();
         // Calculate background color.
         u8 bg_color = apply_palette(bgw_pixel.color, bgw_pixel.palette);
+        // Draw object if:
+        // 1. Color index is not 0 (transparent) and:
+        // 2. Background priority is not greater than object priority, or the background color is 00.
+        bool draw_obj = obj_pixel.color && (!obj_pixel.bg_priority || bg_color == 0);
+        // Calculate obj color.
+        u8 obj_color = apply_palette(obj_pixel.color, obj_pixel.palette & 0xFC);
+        // Selects the final color.
+        u8 color = draw_obj ? obj_color : bg_color;
         // Output pixel.
-        switch(bg_color)
+        switch(color)
         {
             case 0: set_pixel(draw_x, ly, 153, 161, 120, 255); break;
             case 1: set_pixel(draw_x, ly, 87, 93, 67, 255); break;
@@ -390,4 +445,92 @@ void PPU::tick_dma(Emulator* emu)
     emu->oam[dma_offset] = emu->BusRead((((u16)dma) * 0x100) + dma_offset);
     ++dma_offset;
     dma_active = dma_offset < 0xA0;
+}
+
+void PPU::fetcher_get_sprite_tile(Emulator* emu)
+{
+    num_fetched_sprites = 0;
+    // Load this sprite tile.
+    for(u8 i = 0; i < (u8)sprites.size(); ++i)
+    {
+        i32 sp_x = (i32)sprites[i].x - 8;
+        // If the first or last pixel of the sprite row falls in this fetch
+        if(((sp_x >= tile_x_begin) && (sp_x < (tile_x_begin + 8))) ||
+           ((sp_x + 7 >= tile_x_begin) && (sp_x + 7 < (tile_x_begin + 8))))
+        {
+            fetched_sprites[num_fetched_sprites] = sprites[i];
+            ++num_fetched_sprites;
+        }
+        // We can handle at most 3 sprites in one fetch.
+        if(num_fetched_sprites >= 3)
+        {
+            break;
+        }
+    }
+}
+
+void PPU::fetcher_get_sprite_data(Emulator* emu, u8 data_index)
+{
+    u8 sprite_height = obj_height();
+    for(u8 i = 0; i < num_fetched_sprites; ++i)
+    {
+        u8 ty = (u8)(ly + 16 - fetched_sprites[i].y);
+        if(fetched_sprites[i].y_flip())
+        {
+            // Flip y in tile.
+            ty = (sprite_height - 1) - ty;
+        }
+        u8 tile = fetched_sprites[i].tile;
+        if(sprite_height == 16)
+        {
+            tile &= 0xFE; // Clear the last 1 bit if in double tile mode.
+        }
+        sprite_fetched_data[(i * 2) + data_index] = emu->BusRead(0x8000 + (tile * 16) + ty * 2 + data_index);
+    }
+}
+
+void PPU::fetcher_push_sprite_pixels(u8 push_begin, u8 push_end)
+{
+    for(u32 i = push_begin; i < push_end; ++i)
+    {
+        ObjectPixel pixel;
+        // The default value is one transparent color.
+        pixel.color = 0;
+        pixel.palette = 0;
+        pixel.bg_priority = true;
+        if(obj_enable())
+        {
+            for(u8 s = 0; s < num_fetched_sprites; ++s)
+            {
+                i32 spx = (i32)fetched_sprites[s].x - 8;
+                i32 offset = (i32)(i) - spx;
+                if(offset < 0 || offset > 7)
+                {
+                    // This sprite does not cover this pixel.
+                    continue;
+                }
+                u8 b1 = sprite_fetched_data[s * 2];
+                u8 b2 = sprite_fetched_data[s * 2 + 1];
+                u8 b = 7 - (u8)offset;
+                if(fetched_sprites[s].x_flip())
+                {
+                    b = (u8)offset;
+                }
+                u8 lo = (!!(b1 & (1 << b)));
+                u8 hi = (!!(b2 & (1 << b))) << 1;
+                u8 color = hi | lo;
+                if(color == 0)
+                {
+                    // If this sprite is transparent, we look for the next sprite to blend.
+                    continue;
+                }
+                // Use this pixel.
+                pixel.color = color;
+                pixel.palette = fetched_sprites[s].dmg_palette() ? obp1 : obp0;
+                pixel.bg_priority = fetched_sprites[s].priority();
+                break;
+            }
+        }
+        obj_queue.push(pixel);
+    }
 }
