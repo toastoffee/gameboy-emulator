@@ -35,8 +35,10 @@ bool LoadTextureFromMemory(const void* data, size_t data_size, GLuint* out_textu
     glBindTexture(GL_TEXTURE_2D, image_texture);
 
     // Setup filtering parameters for display
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // Upload pixels into texture
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -102,6 +104,6 @@ void ImGuiPixelRenderer::GeneTex(const char *fileName) {
 }
 
 void ImGuiPixelRenderer::Render() {
-    ImGui::Image((void*)(intptr_t)_tex, ImVec2(_width * 1.5, _height * 1.5));
+    ImGui::Image((void*)(intptr_t)_tex, ImVec2(_width * 2, _height * 2));
 }
 
