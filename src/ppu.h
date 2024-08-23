@@ -17,6 +17,7 @@
 #include "bit_oper.h"
 
 #include <queue>
+#include <vector>
 
 enum class PPUMode : u8 {
     H_BLANK = 0,
@@ -40,6 +41,34 @@ struct BGWPixel
     u8 color;
     //! The palette used for this pixel.
     u8 palette;
+};
+
+struct OAMEntry
+{
+    //! The Y position of the sprite plus 16.
+    u8 y;
+    //! The X position of the sprite plus 8.
+    u8 x;
+    //! The tile index that stores the sprite.
+    u8 tile;
+    //! Attribute flags.
+    u8 flags;
+
+    //! 0 : OBP0, 1 : OBP1.
+    u8 dmg_palette() const { return (flags >> 4) & 0x01; }
+    bool x_flip() const { return bitTest(&flags, 5); }
+    bool y_flip() const { return bitTest(&flags, 6); }
+    bool priority() const { return bitTest(&flags, 7); }
+};
+
+struct ObjectPixel
+{
+    //! The color index.
+    u8 color;
+    //! The palette used for this pixel.
+    u8 palette;
+    //! Holds flag 7 of the OAM entry.
+    bool bg_priority;
 };
 
 constexpr u32 PPU_LINES_PER_FRAME = 154;
@@ -118,6 +147,17 @@ public:
     //! If draw_x >= PPU_XRES then all pixels are drawn, so we can start HBLANK.
     u8 draw_x;
 
+
+    //! The FIFO queue for objects (sprites).
+    std::queue<ObjectPixel> obj_queue;
+//! The loaded sprite data during OAM scan stage, sorted by their X position.
+    std::vector<OAMEntry> sprites;
+//! The sprites used in the current fetch.
+    OAMEntry fetched_sprites[3];
+    u8 num_fetched_sprites;
+//! The fetched sprite data in LCDFetchState::data0 and LCDFetchState::data1 step.
+    u8 sprite_fetched_data[6];
+
     bool enabled() const { return bitTest(&lcdc, 7); }
 
     PPUMode get_mode() const { return (PPUMode)(lcds & 0x03); }
@@ -191,6 +231,13 @@ public:
     void fetcher_push_bgw_pixels();
     void fetcher_get_window_tile(Emulator* emu);
 
+    void tick_dma(Emulator* emu);
+
+    bool obj_enable() const { return bitTest(&lcdc, 1); }
+    u8 obj_height() const
+    {
+        return bitTest(&lcdc, 2) ? 16 : 8;
+    }
 };
 
 

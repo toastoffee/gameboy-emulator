@@ -53,7 +53,10 @@ void PPU::init()
 }
 void PPU::tick(Emulator* emu)
 {
-    /*TODO*/
+    if((emu->clockCycles % 4) == 0)
+    {
+        tick_dma(emu);
+    }
     if(!enabled()) return;
     ++line_cycles;
     switch(get_mode())
@@ -374,4 +377,17 @@ void PPU::fetcher_get_window_tile(Emulator* emu)
     i32 tile_x = (i32)(fetch_x) - ((i32)(wx) - 7);
     tile_x = (tile_x / 8) * 8 + (i32)(wx) - 7;
     tile_x_begin = (i16)tile_x;
+}
+
+void PPU::tick_dma(Emulator* emu)
+{
+    if(!dma_active) return;
+    if(dma_start_delay)
+    {
+        --dma_start_delay;
+        return;
+    }
+    emu->oam[dma_offset] = emu->BusRead((((u16)dma) * 0x100) + dma_offset);
+    ++dma_offset;
+    dma_active = dma_offset < 0xA0;
 }
