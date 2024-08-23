@@ -56,6 +56,8 @@ add_executable(gameboy_emulator main.cpp
         src/imgui_pixel_renderer.h
         src/file_helper.cpp
         src/file_helper.h
+        src/joypad.cpp
+        src/joypad.h
 )
 
 target_link_libraries(
