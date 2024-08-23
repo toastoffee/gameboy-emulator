@@ -28,6 +28,7 @@ void DebugWindow::DrawGui(Emulator* emu) {
     DrawCpuGui(emu);
     DrawSerialGui(emu);
     DrawTilesGui(emu);
+    DrawJoypadGui(emu);
 
     ImGui::End();
 }
@@ -322,6 +323,59 @@ void DebugWindow::DrawTilesGui(Emulator *emu) {
             }
             if(ImGui::Button("record img ppm")) {
                 save_as_ppm(tileTexData, (int)width, (int)height);
+            }
+        }
+    }
+}
+
+void DebugWindow::DrawJoypadGui(Emulator *emu) {
+    if(emu) {
+        Joypad& joypad = emu->joypad;
+
+        if(ImGui::CollapsingHeader("Joypad Status")) {
+            if(ImGui::BeginTable("button", 4, ImGuiTableFlags_Borders))
+            {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("right");
+                ImGui::TableNextColumn();
+                ImGui::Text(joypad.right ? "pressed" : "unpressed");
+                ImGui::TableNextColumn();
+                ImGui::Text("A");
+                ImGui::TableNextColumn();
+                ImGui::Text(joypad.a ? "pressed" : "unpressed");
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("left");
+                ImGui::TableNextColumn();
+                ImGui::Text(joypad.left ? "pressed" : "unpressed");
+                ImGui::TableNextColumn();
+                ImGui::Text("B");
+                ImGui::TableNextColumn();
+                ImGui::Text(joypad.b ? "pressed" : "unpressed");
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("up");
+                ImGui::TableNextColumn();
+                ImGui::Text(joypad.up ? "pressed" : "unpressed");
+                ImGui::TableNextColumn();
+                ImGui::Text("select");
+                ImGui::TableNextColumn();
+                ImGui::Text(joypad.select ? "pressed" : "unpressed");
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("down");
+                ImGui::TableNextColumn();
+                ImGui::Text(joypad.down ? "pressed" : "unpressed");
+                ImGui::TableNextColumn();
+                ImGui::Text("start");
+                ImGui::TableNextColumn();
+                ImGui::Text(joypad.start ? "pressed" : "unpressed");
+
+                ImGui::EndTable();
             }
         }
     }

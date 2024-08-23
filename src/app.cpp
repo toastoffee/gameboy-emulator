@@ -283,7 +283,6 @@ void App::update_emulator_input() {
 
         joypad.start = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_Enter));
 
-        ImGui::Text(joypad.up ? "pressed" : "unpressed");
     }
 }
 

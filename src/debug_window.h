@@ -48,6 +48,8 @@ public:
     void DrawSerialGui(Emulator* emu);
 
     void DrawTilesGui(Emulator* emu);
+
+    void DrawJoypadGui(Emulator* emu);
 };
 
 
