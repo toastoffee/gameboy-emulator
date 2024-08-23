@@ -21,6 +21,7 @@ void DebugWindow::DrawGui(Emulator* emu) {
         return;
     }
 
+    ImGui::SetNextWindowPos(ImVec2(PPU_XRES * 3 + 30, 20));
     ImGui::Begin("Debug Window");
     //! TODO: add debug window gui code
 
@@ -140,6 +141,9 @@ void DebugWindow::DrawCpuGui(Emulator* emu) {
             if(cpu.halted)
             {
                 ImGui::Text("CPU Halted.");
+            }
+            else{
+                ImGui::Text("CPU Stepping.");
             }
             ImGui::DragFloat("CPU Speed Scale", &emu->clockSpeedScale, 0.001f);
         }

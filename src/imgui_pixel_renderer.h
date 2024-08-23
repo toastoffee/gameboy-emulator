@@ -34,6 +34,8 @@ public:
     void GeneTex(const char* fileName);
 
     void Render();
+
+    void Render(float pixelWidth);
 };
 
 

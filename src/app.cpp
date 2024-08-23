@@ -45,7 +45,7 @@ void App::Init() {
 #endif
 
     // 创建窗口
-    _mainWindow = glfwCreateWindow(800, 400, "Game Boy Emulator", nullptr, nullptr);
+    _mainWindow = glfwCreateWindow(960, 600, "Game Boy Emulator", nullptr, nullptr);
 
     glfwMakeContextCurrent(_mainWindow);
     // 1:锁60帧, 0:没有帧率上限
@@ -114,18 +114,23 @@ void App::DrawGui() {
     _debugWindow.DrawGui(emulator.get());
     DrawOpenCartridgePanel();
 
+    ImGui::SetNextWindowPos(ImVec2(0, 20));
+    ImGui::SetNextWindowSize(ImVec2(PPU_XRES * 3 + 20, PPU_YRES * 3 + 60));
+    ImGui::Begin("GameView", NULL, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse
+                                                    | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+
     if(emulator->romData) {
-        ImGui::Begin("GameView");
         renderer.GeneTex((const unsigned char*)emulator->ppu.pixels + ((emulator->ppu.current_back_buffer + 1) % 2) * PPU_XRES * PPU_YRES * 4,
                          PPU_XRES, PPU_YRES, ColorMode::RGBA);
-        renderer.Render();
+        renderer.Render(PPU_XRES * 3);
 
-        if(ImGui::Button("save as ppm")) {
+        if(ImGui::Button("save screenshot as ppm")) {
             saveRunningImg((const unsigned char*)emulator->ppu.pixels + ((emulator->ppu.current_back_buffer + 1) % 2) * PPU_XRES * PPU_YRES * 4,
                         PPU_XRES, PPU_YRES);
         }
-        ImGui::End();
     }
+
+    ImGui::End();
 
     // End GUI
     ImGui::Render();
@@ -182,8 +187,9 @@ void App::DrawOpenCartridgePanel() {
         return;
     }
 
-    int width = 600;
+    int width = 500;
     int height = 80;
+    ImGui::SetNextWindowPos(ImVec2(0, PPU_YRES * 3 + 60));
     ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Appearing);
 
     ImGui::Begin("Open Cartridge");

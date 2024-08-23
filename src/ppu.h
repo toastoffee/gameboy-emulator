@@ -243,5 +243,4 @@ public:
     }
 };
 
-
 #endif //GAMEBOY_EMULATOR_PPU_H
