@@ -15,6 +15,7 @@
 
 #include "debug_window.h"
 #include "emulator.h"
+#include "imgui_pixel_renderer.h"
 
 #include <memory>
 
@@ -31,11 +32,11 @@ public:
     GLFWwindow *_mainWindow;
 
     DebugWindow _debugWindow;
-    Emulator _emulator;
 
     bool _showOpenCartridgePanel = false;
 
     std::unique_ptr<Emulator> emulator;
+    ImGuiPixelRenderer renderer;
 
 public:
     ~App();

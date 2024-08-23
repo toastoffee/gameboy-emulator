@@ -10,9 +10,27 @@
 
 #include <iostream>
 #include <filesystem>
+#include <fstream>
 
 
 #include "app.h"
+
+
+inline void saveRunningImg(const unsigned char* data, int width, int height) {
+
+    std::ofstream binFile("img.ppm", std::ios::out | std::ios::binary);
+    const char* header = "P6 160 144 255 ";
+    binFile.write(header, strlen(header));
+
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            int idx = i * width * 4 + j * 4;
+            binFile.write((const char*)data + idx, 3);
+        }
+    }
+
+    binFile.close();
+}
 
 void App::Init() {
 
@@ -57,7 +75,6 @@ void App::Update() {
     // Draw GUI
     DrawGui();
 
-
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     // Update window events
@@ -96,6 +113,17 @@ void App::DrawGui() {
     DrawMainMenuBar();
     _debugWindow.DrawGui(emulator.get());
     DrawOpenCartridgePanel();
+
+    if(emulator->romData) {
+        renderer.GeneTex((const unsigned char*)emulator->ppu.pixels + ((emulator->ppu.current_back_buffer + 1) % 2) * PPU_XRES * PPU_YRES * 4,
+                         PPU_XRES, PPU_YRES, ColorMode::RGBA);
+        renderer.Render();
+
+        if(ImGui::Button("save as ppm")) {
+            saveRunningImg((const unsigned char*)emulator->ppu.pixels + ((emulator->ppu.current_back_buffer + 1) % 2) * PPU_XRES * PPU_YRES * 4,
+                        PPU_XRES, PPU_YRES);
+        }
+    }
 
     // End GUI
     ImGui::Render();
@@ -159,7 +187,7 @@ void App::DrawOpenCartridgePanel() {
     ImGui::Begin("Open Cartridge");
 
     // all unit tests under (cpu_instrs/individual) passed
-    static char cart_path[128] = "../gb/Tennis (World).gb";;
+    static char cart_path[128] = "../gb/Dr. Mario (World).gb";;
     ImGui::InputText("Cartridge Path", cart_path, IM_ARRAYSIZE(cart_path));
 
     if(ImGui::Button("Confirm")) {

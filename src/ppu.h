@@ -185,6 +185,7 @@ public:
 
     void fetcher_get_background_tile(Emulator* emu);
     void fetcher_push_bgw_pixels();
+    void fetcher_get_window_tile(Emulator* emu);
 
 };
 
