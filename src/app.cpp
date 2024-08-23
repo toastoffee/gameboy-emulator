@@ -130,6 +130,10 @@ void App::DrawGui() {
         }
     }
 
+    if(emulator->isCartLoaded) {
+        update_emulator_input();
+    }
+
     ImGui::End();
 
     // End GUI
@@ -253,5 +257,11 @@ void App::FileBrowser() {
 //    ImGui::Begin("File Browser");
 //
 //    ImGui::End();
+}
+
+void App::update_emulator_input() {
+    if(ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow))) {
+        assert(false);
+    }
 }
 

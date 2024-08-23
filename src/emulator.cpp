@@ -61,10 +61,12 @@ void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
     timer.Init();
     serial.Init();
     ppu.init();
+    joypad.init();
 
 }
 
 void Emulator::Update(f64 deltaTime) {
+    joypad.update(this);
     u64 frameCycles = (u64)((f32)(GB_CLOCK_FREQUENCY * deltaTime) * clockSpeedScale );
     u64 endCycles = clockCycles + frameCycles;
     while(clockCycles < endCycles) {
@@ -113,6 +115,10 @@ u8 Emulator::BusRead(u16 addr) {
     if(addr >= 0xFE00 && addr <= 0xFE9F)
     {
         return oam[addr - 0xFE00];
+    }
+    if(addr == 0xFF00)
+    {
+        return joypad.bus_read();
     }
     if(addr >= 0xFF01 && addr <= 0xFF02)
     {
@@ -175,6 +181,11 @@ void Emulator::BusWrite(u16 addr, u8 data) {
         oam[addr - 0xFE00] = data;
         return;
     }
+    if(addr == 0xFF00)
+    {
+        joypad.bus_write(data);
+        return;
+    }
     if(addr >= 0xFF01 && addr <= 0xFF02)
     {
         serial.BusWrite(addr, data);
@@ -222,3 +233,4 @@ void Emulator::Close() {
         INFO("Cartridge Unloaded.");
     }
 }
+

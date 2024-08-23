@@ -51,6 +51,7 @@ public:
     void DrawOpenCartridgePanel();
     void FileBrowser();
 
+    void update_emulator_input();
 public:
     App() = default;
 };

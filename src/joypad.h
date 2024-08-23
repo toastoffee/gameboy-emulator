@@ -18,6 +18,7 @@
 class Emulator;
 
 class Joypad {
+public:
     bool a;
     bool b;
     bool select;

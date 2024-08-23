@@ -19,6 +19,7 @@
 #include "timer.h"
 #include "serial.h"
 #include "ppu.h"
+#include "joypad.h"
 
 class Emulator {
 public:
@@ -46,7 +47,7 @@ public:
     Timer timer;
     Serial serial;
     PPU ppu;
-
+    Joypad joypad;
 
     bool isCartLoaded = false;
 
@@ -64,6 +65,7 @@ public:
 
     u8 BusRead(u16 addr);
     void BusWrite(u16 addr, u8 data);
+
 };
 
 constexpr u8 INT_VBLANK = 1;
