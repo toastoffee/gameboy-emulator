@@ -28,6 +28,29 @@ inline u8 apply_palette(u8 color, u8 palette)
     return color;
 }
 
+void PPU::increase_ly(Emulator* emu)
+{
+    if(window_visible() && ly >= wy &&
+       (u16)ly < (u16)(wy + PPU_YRES))
+    {
+        ++window_line;
+    }
+
+    ++ly;
+    if(ly == lyc)
+    {
+        set_lyc_flag();
+        if(lyc_int_enabled())
+        {
+            emu->intFlags |= INT_LCD_STAT;
+        }
+    }
+    else
+    {
+        reset_lyc_flag();
+    }
+}
+
 void PPU::init()
 {
     lcdc = 0x91;
@@ -51,6 +74,7 @@ void PPU::init()
     memset(pixels, 0, sizeof(pixels));
     current_back_buffer = 0;
 }
+
 void PPU::tick(Emulator* emu)
 {
     if((emu->clockCycles % 4) == 0)
@@ -73,6 +97,8 @@ void PPU::tick(Emulator* emu)
             break;
     }
 }
+
+
 u8 PPU::bus_read(u16 addr)
 {
     assert(addr >= 0xFF40 && addr <= 0xFF4B);
@@ -104,6 +130,19 @@ void PPU::bus_write(u16 addr, u8 data)
         dma_start_delay = 1;
     }
     ((u8*)(&lcdc))[addr - 0xFF40] = data;
+}
+
+void PPU::tick_dma(Emulator* emu)
+{
+    if(!dma_active) return;
+    if(dma_start_delay)
+    {
+        --dma_start_delay;
+        return;
+    }
+    emu->oam[dma_offset] = emu->BusRead((((u16)dma) * 0x100) + dma_offset);
+    ++dma_offset;
+    dma_active = dma_offset < 0xA0;
 }
 
 void PPU::tick_oam_scan(Emulator* emu)
@@ -178,6 +217,9 @@ void PPU::tick_drawing(Emulator* emu)
             while(!bgw_queue.empty()) {
                 bgw_queue.pop();
             }
+            while(!obj_queue.empty()) {
+                obj_queue.pop();
+            }
         }
     }
     // LCD driver is ticked once per cycle.
@@ -228,29 +270,6 @@ void PPU::tick_vblank(Emulator* emu)
             }
         }
         line_cycles = 0;
-    }
-}
-
-void PPU::increase_ly(Emulator* emu)
-{
-    if(window_visible() && ly >= wy &&
-       (u16)ly < (u16)(wy + PPU_YRES))
-    {
-        ++window_line;
-    }
-
-    ++ly;
-    if(ly == lyc)
-    {
-        set_lyc_flag();
-        if(lyc_int_enabled())
-        {
-            emu->intFlags |= INT_LCD_STAT;
-        }
-    }
-    else
-    {
-        reset_lyc_flag();
     }
 }
 
@@ -432,19 +451,6 @@ void PPU::fetcher_get_window_tile(Emulator* emu)
     i32 tile_x = (i32)(fetch_x) - ((i32)(wx) - 7);
     tile_x = (tile_x / 8) * 8 + (i32)(wx) - 7;
     tile_x_begin = (i16)tile_x;
-}
-
-void PPU::tick_dma(Emulator* emu)
-{
-    if(!dma_active) return;
-    if(dma_start_delay)
-    {
-        --dma_start_delay;
-        return;
-    }
-    emu->oam[dma_offset] = emu->BusRead((((u16)dma) * 0x100) + dma_offset);
-    ++dma_offset;
-    dma_active = dma_offset < 0xA0;
 }
 
 void PPU::fetcher_get_sprite_tile(Emulator* emu)

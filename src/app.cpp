@@ -189,7 +189,7 @@ void App::DrawOpenCartridgePanel() {
     ImGui::Begin("Open Cartridge");
 
     // all unit tests under (cpu_instrs/individual) passed
-    static char cart_path[128] = "../gb/Dr. Mario (World).gb";;
+    static char cart_path[128] = "../dmg-acid2/dmg-acid2.gb";
     ImGui::InputText("Cartridge Path", cart_path, IM_ARRAYSIZE(cart_path));
 
     if(ImGui::Button("Confirm")) {
