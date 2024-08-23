@@ -260,8 +260,28 @@ void App::FileBrowser() {
 }
 
 void App::update_emulator_input() {
-    if(ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow))) {
-        assert(false);
+    auto& joypad = emulator->joypad;
+
+    if(ImGui::IsWindowFocused()) {
+        joypad.up = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow))
+                || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_W));
+
+        joypad.left = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow))
+                    || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A));
+
+        joypad.down = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow))
+                    || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_S));
+
+        joypad.right = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow))
+                    || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_D));
+
+        joypad.a = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_J));
+
+        joypad.b = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_K));
+
+        joypad.select = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Space));
+
+        joypad.start = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter));
     }
 }
 
