@@ -85,6 +85,10 @@ public:
 
     // PPU internal state
 
+    bool dma_active;
+    u8 dma_offset;
+    u8 dma_start_delay;
+
     //! The number of cycles used for this scan line.
     u32 line_cycles;
 

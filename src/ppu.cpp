@@ -44,6 +44,9 @@ void PPU::init()
     wx = 0;
     set_mode(PPUMode::OAM_SCAN);
 
+    dma_active = false;
+    dma_offset = 0;
+    dma_start_delay = 0;
     line_cycles = 0;
     memset(pixels, 0, sizeof(pixels));
     current_back_buffer = 0;
@@ -89,6 +92,13 @@ void PPU::bus_write(u16 addr, u8 data)
         return;
     }
     if(addr == 0xFF44) return; // read only.
+    if(addr == 0xFF46)
+    {
+        // Enable DMA transfer.
+        dma_active = true;
+        dma_offset = 0;
+        dma_start_delay = 1;
+    }
     ((u8*)(&lcdc))[addr - 0xFF40] = data;
 }
 

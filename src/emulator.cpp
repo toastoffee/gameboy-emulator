@@ -53,6 +53,9 @@ void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
     // set the ram
     memset(wRam, 0, 8 * kb);
     memset(vRam, 0, 8 * kb);
+    memset(oam, 0,  160);
+    memset(hRam, 0, 128);
+
     intFlags = 0;
     intEnableFlags = 0;
     timer.Init();
@@ -106,6 +109,10 @@ u8 Emulator::BusRead(u16 addr) {
     {
         // Working RAM.
         return wRam[addr - 0xC000];
+    }
+    if(addr >= 0xFE00 && addr <= 0xFE9F)
+    {
+        return oam[addr - 0xFE00];
     }
     if(addr >= 0xFF01 && addr <= 0xFF02)
     {
@@ -161,6 +168,11 @@ void Emulator::BusWrite(u16 addr, u8 data) {
     {
         // Working RAM.
         wRam[addr - 0xC000] = data;
+        return;
+    }
+    if(addr >= 0xFE00 && addr <= 0xFE9F)
+    {
+        oam[addr - 0xFE00] = data;
         return;
     }
     if(addr >= 0xFF01 && addr <= 0xFF02)

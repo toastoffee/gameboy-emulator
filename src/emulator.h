@@ -36,6 +36,7 @@ public:
     byte vRam[8 * kb];  // visual ram
     byte wRam[8 * kb];  // working ram
     byte hRam[128];     // high ram
+    byte oam[160];
 
     //! 0xFF0F - The interruption flags
     u8 intFlags;
