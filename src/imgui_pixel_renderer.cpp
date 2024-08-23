@@ -102,6 +102,6 @@ void ImGuiPixelRenderer::GeneTex(const char *fileName) {
 }
 
 void ImGuiPixelRenderer::Render() {
-    ImGui::Image((void*)(intptr_t)_tex, ImVec2(_width, _height));
+    ImGui::Image((void*)(intptr_t)_tex, ImVec2(_width * 1.5, _height * 1.5));
 }
 

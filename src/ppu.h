@@ -51,7 +51,7 @@ class Emulator;
 
 inline void* pixel_offset(void* base, u32 x, u32 y, u32 bytes_per_pixel, u32 row_pitch)
 {
-    u32* r = (u32*)base;
+    u8* r = (u8*)base;
     r += y * row_pitch + x * bytes_per_pixel;
     return (void*)r;
 }
@@ -176,7 +176,7 @@ public:
         assert(x >= 0 || x < PPU_XRES);
         assert(y >= 0 || y < PPU_YRES);
         u8* dst = pixels + current_back_buffer * PPU_XRES * PPU_YRES * 4;
-        u8* pixel = (u8*)pixel_offset(dst, (u32)x, (u32)y, 4, 4 * PPU_XRES);
+        u8* pixel = (u8*)pixel_offset(dst, (u64)x, (u64)y, 4, 4 * PPU_XRES);
         pixel[0] = r;
         pixel[1] = g;
         pixel[2] = b;

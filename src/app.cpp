@@ -115,6 +115,7 @@ void App::DrawGui() {
     DrawOpenCartridgePanel();
 
     if(emulator->romData) {
+        ImGui::Begin("GameView");
         renderer.GeneTex((const unsigned char*)emulator->ppu.pixels + ((emulator->ppu.current_back_buffer + 1) % 2) * PPU_XRES * PPU_YRES * 4,
                          PPU_XRES, PPU_YRES, ColorMode::RGBA);
         renderer.Render();
@@ -123,6 +124,7 @@ void App::DrawGui() {
             saveRunningImg((const unsigned char*)emulator->ppu.pixels + ((emulator->ppu.current_back_buffer + 1) % 2) * PPU_XRES * PPU_YRES * 4,
                         PPU_XRES, PPU_YRES);
         }
+        ImGui::End();
     }
 
     // End GUI
