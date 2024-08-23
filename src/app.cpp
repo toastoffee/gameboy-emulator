@@ -263,25 +263,27 @@ void App::update_emulator_input() {
     auto& joypad = emulator->joypad;
 
     if(ImGui::IsWindowFocused()) {
-        joypad.up = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow))
-                || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_W));
+        joypad.up = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_UpArrow))
+                || ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_W));
 
-        joypad.left = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow))
-                    || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A));
+        joypad.left = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_LeftArrow))
+                    || ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_A));
 
-        joypad.down = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow))
-                    || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_S));
+        joypad.down = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_DownArrow))
+                    || ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_S));
 
-        joypad.right = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow))
-                    || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_D));
+        joypad.right = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_RightArrow))
+                    || ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_D));
 
-        joypad.a = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_J));
+        joypad.a = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_J));
 
-        joypad.b = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_K));
+        joypad.b = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_K));
 
-        joypad.select = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Space));
+        joypad.select = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_Space));
 
-        joypad.start = ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter));
+        joypad.start = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_Enter));
+
+        ImGui::Text(joypad.up ? "pressed" : "unpressed");
     }
 }
 
