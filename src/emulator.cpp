@@ -63,6 +63,21 @@ void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
     ppu.init();
     joypad.init();
 
+    // init the cartridge ram
+    switch(header->ram_size)
+    {
+        case 2: cRam_size = 8 * kb; break;
+        case 3: cRam_size = 32 * kb; break;
+        case 4: cRam_size = 128 * kb; break;
+        case 5: cRam_size = 64 * kb; break;
+        default: break;
+    }
+    if(cRam_size)
+    {
+        cRam = (byte *)malloc(cRam_size);
+        memset(cRam, 0, cRam_size);
+    }
+
 }
 
 void Emulator::Update(f64 deltaTime) {
@@ -224,6 +239,12 @@ void Emulator::BusWrite(u16 addr, u8 data) {
 }
 
 void Emulator::Close() {
+    if(cRam)
+    {
+        free(cRam);
+        cRam = nullptr;
+        cRam_size = 0;
+    }
     if(romData) {
         free(romData);
         romData = nullptr;

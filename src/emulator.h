@@ -26,6 +26,11 @@ public:
     byte* romData = nullptr;
     u64 romDataSize = 0;
 
+    //! The cartridge RAM.
+    byte* cRam = nullptr;
+    //! The cartridge RAM size.
+    u64 cRam_size = 0;
+
     bool isPaused = false;         // is the emulation paused
     f32 clockSpeedScale = 1.0f;    // clock speed scale value
     u64 clockCycles = 0;           // the cycle counter
