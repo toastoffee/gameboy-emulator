@@ -113,4 +113,9 @@ inline bool is_cart_mbc1(u8 cartridge_type)
     return cartridge_type >= 1 && cartridge_type <= 3;
 }
 
+inline bool is_cart_mbc2(u8 cartridge_type)
+{
+    return cartridge_type >= 5 && cartridge_type <= 6;
+}
+
 #endif //GAMEBOY_EMULATOR_CARTRIDGE_H

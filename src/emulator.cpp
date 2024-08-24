@@ -76,6 +76,11 @@ void Emulator::Init(std::string cartridgePath, const void *cartridgeData, u64 ca
         case 5: cRam_size = 64 * kb; break;
         default: break;
     }
+    if(is_cart_mbc2(header->cartridge_type))
+    {
+        // MBC2 cartridges have fixed 512x4 bits of RAM, which is not shown in header info.
+        cRam_size = 512;
+    }
     if(cRam_size)
     {
         cRam = (byte *)malloc(cRam_size);
