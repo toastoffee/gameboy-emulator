@@ -37,9 +37,11 @@ CartridgeHeader* GetCartridgeHeader(byte* romData);
 
 static const c8* ROM_TYPES[] = {
     "ROM ONLY",
+
     "MBC1",
     "MBC1+RAM",
     "MBC1+RAM+BATTERY",
+
     "0x04 ???",
     "MBC2",
     "MBC2+BATTERY",
@@ -105,5 +107,10 @@ const c8* GetCartridgeLicCodeName(u8 licCode);
 u8 CartridgeRead(Emulator *emu, u16 addr);
 
 void CartridgeWrite(Emulator *emu, u16 addr, u8 data);
+
+inline bool is_cart_mbc1(u8 cartridge_type)
+{
+    return cartridge_type >= 1 && cartridge_type <= 3;
+}
 
 #endif //GAMEBOY_EMULATOR_CARTRIDGE_H

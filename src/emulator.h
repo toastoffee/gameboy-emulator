@@ -35,6 +35,21 @@ public:
     //! The cartridge RAM size.
     u64 cRam_size = 0;
 
+    //! The number of ROM banks. 16KB per bank.
+    u32 num_rom_banks = 0;
+    //! MBC1: The cartridge RAM is enabled for reading / writing.
+    bool cram_enable = false;
+    //! MBC1: The ROM bank number controlling which rom bank is mapped to 0x4000~0x7FFF.
+    u8 rom_bank_number = 1;
+    //! MBC1: The RAM bank number register controlling which ram bank is mapped to 0xA000~0xBFFF.
+    //! If the cartridge ROM size is larger than 512KB (32 banks), this is used to control the
+    //! high 2 bits of rom bank number, enabling the game to use at most 2MB of ROM data.
+    u8 ram_bank_number = 0;
+    //! MBC1: The banking mode.
+    //! 0: 0000–3FFF and A000–BFFF are locked to bank 0 of ROM and SRAM respectively.
+    //! 1: 0000–3FFF and A000-BFFF can be bank-switched via the 4000–5FFF register.
+    u8 banking_mode = 0;
+
     bool isPaused = false;         // is the emulation paused
     f32 clockSpeedScale = 1.0f;    // clock speed scale value
     u64 clockCycles = 0;           // the cycle counter

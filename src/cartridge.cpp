@@ -101,24 +101,210 @@ const c8 *GetCartridgeLicCodeName(u8 licCode) {
     return "UNKNOWN";
 }
 
-u8 CartridgeRead(Emulator *emu, u16 addr) {
-    if(addr <= 0x7FFF) {
-        return emu->romData[addr];
-    }
-    if(addr >= 0xA000 && addr <= 0xBFFF && emu->cRam)
+
+u8 mbc1_read(Emulator* emu, u16 addr)
+{
+    if(addr <= 0x3FFF)
     {
-        return emu->cRam[addr - 0xA000];
+        if(emu->banking_mode && emu->num_rom_banks > 32)
+        {
+            u32 bank_index = emu->ram_bank_number;
+            u32 bank_offset = bank_index * 32 * 16 * kb;
+            return emu->romData[bank_offset + addr];
+        }
+        else
+        {
+            return emu->romData[addr];
+        }
     }
+    if(addr >= 0x4000 && addr <= 0x7FFF)
+    {
+        // Cartridge ROM bank 01-7F.
+        if(emu->banking_mode && emu->num_rom_banks > 32)
+        {
+            u32 bank_index = emu->rom_bank_number + (emu->ram_bank_number << 5);
+            u32 bank_offset = bank_index * 16 * kb;
+            return emu->romData[bank_offset + (addr - 0x4000)];
+        }
+        else
+        {
+            u32 bank_index = emu->rom_bank_number;
+            u32 bank_offset = bank_index * 16 * kb;
+            return emu->romData[bank_offset + (addr - 0x4000)];
+        }
+    }
+    if(addr >= 0xA000 && addr <= 0xBFFF)
+    {
+        if(emu->cRam)
+        {
+            if(!emu->cram_enable) return 0xFF;
+            if(emu->num_rom_banks <= 32)
+            {
+                if(emu->banking_mode)
+                {
+                    // Advanced banking mode.
+                    u32 bank_offset = emu->ram_bank_number * 8 * kb;
+                    assert(bank_offset + (addr - 0xA000) <= emu->cRam_size);
+                    return emu->cRam[bank_offset + (addr - 0xA000)];
+                }
+                else
+                {
+                    // Simple banking mode.
+                    return emu->cRam[addr - 0xA000];
+                }
+            }
+            else
+            {
+                // ram_bank_number is used for switching ROM banks, use 1 ram page.
+                return emu->cRam[addr - 0xA000];
+            }
+        }
+    }
+    ERROR("Unsupported MBC1 cartridge read address: 0x%04X", (u32)addr);
+    return 0xFF;
+}
+
+void mbc1_write(Emulator* emu, u16 addr, u8 data)
+{
+    if(addr <= 0x1FFF)
+    {
+        // Enable/disable cartridge RAM.
+        if(emu->cRam)
+        {
+            if((data & 0x0F) == 0x0A)
+            {
+                emu->cram_enable = true;
+            }
+            else
+            {
+                emu->cram_enable = false;
+            }
+            return;
+        }
+    }
+    if(addr >= 0x2000 && addr <= 0x3FFF)
+    {
+        // Set ROM bank number.
+        emu->rom_bank_number = data & 0x1F;
+        if(emu->rom_bank_number == 0)
+        {
+            emu->rom_bank_number = 1;
+        }
+        if(emu->num_rom_banks <= 2)
+        {
+            emu->rom_bank_number = emu->rom_bank_number & 0x01;
+        }
+        else if(emu->num_rom_banks <= 4)
+        {
+            emu->rom_bank_number = emu->rom_bank_number & 0x03;
+        }
+        else if(emu->num_rom_banks <= 8)
+        {
+            emu->rom_bank_number = emu->rom_bank_number & 0x07;
+        }
+        else if(emu->num_rom_banks <= 16)
+        {
+            emu->rom_bank_number = emu->rom_bank_number & 0x0F;
+        }
+        return;
+    }
+    if(addr >= 0x4000 && addr <= 0x5FFF)
+    {
+        // Set RAM bank number.
+        emu->ram_bank_number = data & 0x03;
+        // Discards unsupported banks.
+        if(emu->num_rom_banks > 32)
+        {
+            if(emu->num_rom_banks <= 64)
+            {
+                emu->ram_bank_number &= 0x01;
+            }
+        }
+        else
+        {
+            if(emu->cRam_size <= 8 * kb)
+            {
+                emu->ram_bank_number = 0;
+            }
+            else if(emu->cRam_size <= 16 * kb)
+            {
+                emu->ram_bank_number &= 0x01;
+            }
+        }
+        return;
+    }
+    if(addr >= 0x6000 && addr <= 0x7FFF)
+    {
+        // Set banking mode.
+        if(emu->num_rom_banks > 32 || emu->cRam_size > 8 * kb)
+        {
+            emu->banking_mode = data & 0x01;
+        }
+        return;
+    }
+    if(addr >= 0xA000 && addr <= 0xBFFF)
+    {
+        if(emu->cRam)
+        {
+            if(!emu->cram_enable) return;
+            if(emu->num_rom_banks <= 32)
+            {
+                if(emu->banking_mode)
+                {
+                    // Advanced banking mode.
+                    u32 bank_offset = emu->ram_bank_number * 8 * kb;
+                    assert(bank_offset + (addr - 0xA000) <= emu->cRam_size);
+                    emu->cRam[bank_offset + (addr - 0xA000)] = data;
+                }
+                else
+                {
+                    // Simple banking mode.
+                    emu->cRam[addr - 0xA000] = data;
+                }
+            }
+            else
+            {
+                // ram_bank_number is used for switching ROM banks, use 1 ram page.
+                emu->cRam[addr - 0xA000] = data;
+            }
+            return;
+        }
+    }
+    ERROR("Unsupported MBC1 cartridge write address: 0x%04X", (u32)addr);
+}
+
+u8 CartridgeRead(Emulator *emu, u16 addr) {
+
+    u8 cartridge_type = GetCartridgeHeader(emu->romData)->cartridge_type;
+    if(is_cart_mbc1(cartridge_type)) {
+        return mbc1_read(emu, addr);
+    }
+    else {
+        if(addr <= 0x7FFF) {
+            return emu->romData[addr];
+        }
+        if(addr >= 0xA000 && addr <= 0xBFFF && emu->cRam) {
+            return emu->cRam[addr - 0xA000];
+        }
+    }
+
     ERROR("Unsupported cartridge read address: 0x%04X", (u32)addr);
     return 0xFF;
 }
 
 void CartridgeWrite(Emulator *emu, u16 addr, u8 data) {
+    u8 cartridge_type = GetCartridgeHeader(emu->romData)->cartridge_type;
 
-    if(addr >= 0xA000 && addr <= 0xBFFF && emu->cRam)
-    {
-        emu->cRam[addr - 0xA000] = data;
+    if(is_cart_mbc1(cartridge_type)) {
+        mbc1_write(emu, addr, data);
         return;
+    }
+    else {
+        if(addr >= 0xA000 && addr <= 0xBFFF && emu->cRam)
+        {
+            emu->cRam[addr - 0xA000] = data;
+            return;
+        }
     }
 
     ERROR("Unsupported cartridge write address: 0x%04X", (u32)addr);

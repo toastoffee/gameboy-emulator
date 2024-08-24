@@ -39,6 +39,8 @@ void Emulator::Init(std::string cartridgePath, const void *cartridgeData, u64 ca
     }
     assert(checkSum == header->checksum && "cartridge check sum can't match!");
 
+    num_rom_banks = ((u32)32) << header->rom_size / 16;
+
     // print cartridge load info
 
     INFO("Cartridge Loaded.");
