@@ -105,12 +105,21 @@ u8 CartridgeRead(Emulator *emu, u16 addr) {
     if(addr <= 0x7FFF) {
         return emu->romData[addr];
     }
+    if(addr >= 0xA000 && addr <= 0xBFFF && emu->cRam)
+    {
+        return emu->cRam[addr - 0xA000];
+    }
     ERROR("Unsupported cartridge read address: 0x%04X", (u32)addr);
     return 0xFF;
 }
 
 void CartridgeWrite(Emulator *emu, u16 addr, u8 data) {
-    // for now, we only support single ROM cartridge
-    // so cartridge write won't do anything
+
+    if(addr >= 0xA000 && addr <= 0xBFFF && emu->cRam)
+    {
+        emu->cRam[addr - 0xA000] = data;
+        return;
+    }
+
     ERROR("Unsupported cartridge write address: 0x%04X", (u32)addr);
 }

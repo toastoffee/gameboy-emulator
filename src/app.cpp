@@ -217,7 +217,7 @@ void App::DrawOpenCartridgePanel() {
         fread(source, sizeof(byte), fileSize, file);
         fclose(file);
 
-        emulator->Init(source, fileSize);
+        emulator->Init(cart_path, source, fileSize);
     }
     ImGui::SameLine();
     if(ImGui::Button("Confirm without playing")) {
@@ -235,7 +235,7 @@ void App::DrawOpenCartridgePanel() {
         fread(source, sizeof(byte), fileSize, file);
         fclose(file);
 
-        emulator->Init(source, fileSize);
+        emulator->Init(cart_path, source, fileSize);
         if(emulator) {
             emulator->isPaused = true;
         }

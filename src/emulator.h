@@ -21,8 +21,12 @@
 #include "ppu.h"
 #include "joypad.h"
 
+#include <string>
+
 class Emulator {
 public:
+    std::string cartridge_path;
+
     byte* romData = nullptr;
     u64 romDataSize = 0;
 
@@ -59,7 +63,7 @@ public:
 public:
     ~Emulator();
 
-    void Init(const void* cartridgeData, u64 cartridgeDataSize);
+    void Init(std::string cartridgePath, const void* cartridgeData, u64 cartridgeDataSize);
     void Close();
 
     void Update(f64 deltaTime);
@@ -70,6 +74,8 @@ public:
 
     u8 BusRead(u16 addr);
     void BusWrite(u16 addr, u8 data);
+    void load_cartridge_ram_data();
+    void save_cartridge_ram_data();
 
 };
 

@@ -14,17 +14,19 @@
 #include "log-min.h"
 
 #include <iostream>
+#include <fstream>
 
 Emulator::~Emulator() {
     Close();
 }
 
-void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
+void Emulator::Init(std::string cartridgePath, const void *cartridgeData, u64 cartridgeDataSize) {
     assert(cartridgeData && cartridgeDataSize && "cartridge data is empty!");
 
     isCartLoaded = true;
 
     // copy cartridge data
+    this->cartridge_path = cartridgePath;
     romData = (byte*) malloc(cartridgeDataSize);
     romDataSize = cartridgeDataSize;
     memcpy(romData, cartridgeData, cartridgeDataSize);
@@ -76,8 +78,10 @@ void Emulator::Init(const void *cartridgeData, u64 cartridgeDataSize) {
     {
         cRam = (byte *)malloc(cRam_size);
         memset(cRam, 0, cRam_size);
+        if(is_cart_battery(header->cartridge_type)) {
+            load_cartridge_ram_data();
+        }
     }
-
 }
 
 void Emulator::Update(f64 deltaTime) {
@@ -241,6 +245,11 @@ void Emulator::BusWrite(u16 addr, u8 data) {
 void Emulator::Close() {
     if(cRam)
     {
+        CartridgeHeader* header = GetCartridgeHeader(romData);
+        if(is_cart_battery(header->cartridge_type))
+        {
+            save_cartridge_ram_data();
+        }
         free(cRam);
         cRam = nullptr;
         cRam_size = 0;
@@ -253,5 +262,37 @@ void Emulator::Close() {
 
         INFO("Cartridge Unloaded.");
     }
+}
+
+void Emulator::load_cartridge_ram_data() {
+    auto save_path = cartridge_path.substr(0, cartridge_path.length() - 2) + "sav";
+
+    FILE* f = fopen(save_path.c_str(), "rb");
+    if (f == NULL) {
+        WARN("save file not found!");
+        return;
+    }
+    fseek(f, 0, SEEK_END);
+    auto fileSize = (size_t)ftell(f);
+    if (fileSize == -1) {
+        ERROR("save file is empty!");
+        return;
+    }
+    fseek(f, 0, SEEK_SET);
+
+    fread(cRam, 1, cRam_size, f);
+
+    INFO("cartridge RAM data loaded: %s", save_path.c_str());
+}
+
+void Emulator::save_cartridge_ram_data() {
+    auto save_path = cartridge_path.substr(0, cartridge_path.length() - 2) + "sav";
+
+    std::ofstream saveFile(save_path, std::ios::out | std::ios::binary);
+    saveFile.write((const char *)cRam, cRam_size);
+
+    saveFile.close();
+
+    INFO("Save cartridge RAM data to %s.", save_path.c_str());
 }
 

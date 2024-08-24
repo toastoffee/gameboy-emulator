@@ -82,6 +82,20 @@ static const c8* RAM_SIZE_TYPES[] = {
     "64 KB (8 banks of 8KB each)"
 };
 
+inline bool is_cart_battery(u8 cartridge_type)
+{
+    return cartridge_type == 3 || // MBC1+RAM+BATTERY
+           cartridge_type == 6 || // MBC2+BATTERY
+           cartridge_type == 9 || // ROM+RAM+BATTERY 1
+           cartridge_type == 13 || // MMM01+RAM+BATTERY
+           cartridge_type == 15 || // MBC3+TIMER+BATTERY
+           cartridge_type == 16 || // MBC3+TIMER+RAM+BATTERY 2
+           cartridge_type == 19 || // MBC3+RAM+BATTERY 2
+           cartridge_type == 27 || // MBC5+RAM+BATTERY
+           cartridge_type == 30 || // MBC5+RUMBLE+RAM+BATTERY
+           cartridge_type == 34; // MBC7+SENSOR+RUMBLE+RAM+BATTERY
+}
+
 const c8* GetCartridgeTypename(u8 type);
 
 const c8* GetCartridgeRamSizeName(u8 ramSizeCode);
