@@ -58,6 +58,8 @@ add_executable(gameboy_emulator main.cpp
         src/file_helper.h
         src/joypad.cpp
         src/joypad.h
+        src/RTC.cpp
+        src/RTC.h
 )
 
 target_link_libraries(
