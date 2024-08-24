@@ -199,7 +199,7 @@ void App::DrawOpenCartridgePanel() {
     ImGui::Begin("Open Cartridge");
 
     // all unit tests under (cpu_instrs/individual) passed
-    static char cart_path[128] = "../gb/Alleyway (World).gb";
+    static char cart_path[128] = "../gb/Legend of Zelda, The - Link's Awakening (USA, Europe) (Rev 1).gb";
     ImGui::InputText("Cartridge Path", cart_path, IM_ARRAYSIZE(cart_path));
 
     if(ImGui::Button("Confirm")) {
