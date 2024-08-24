@@ -351,6 +351,115 @@ void mbc2_write(Emulator* emu, u16 addr, u8 data)
     ERROR("Unsupported MBC2 cartridge write address: 0x%04X", (u32)addr);
 }
 
+u8 mbc3_read(Emulator* emu, u16 addr)
+{
+    if(addr <= 0x3FFF)
+    {
+        return emu->romData[addr];
+    }
+    if(addr >= 0x4000 && addr <= 0x7FFF)
+    {
+        // Cartridge ROM bank 01-7F.
+        u32 bank_index = emu->rom_bank_number;
+        u32 bank_offset = bank_index * 16 * kb;
+        return emu->romData[bank_offset + (addr - 0x4000)];
+    }
+    if(addr >= 0xA000 && addr <= 0xBFFF)
+    {
+        if(emu->ram_bank_number <= 0x03)
+        {
+            if(emu->cRam)
+            {
+                if(!emu->cram_enable) return 0xFF;
+                u32 bank_offset = emu->ram_bank_number * 8 * kb;
+                assert(bank_offset + (addr - 0xA000) <= emu->cRam_size);
+                return emu->cRam[bank_offset + (addr - 0xA000)];
+            }
+        }
+        if(is_cart_timer(GetCartridgeHeader(emu->romData)->cartridge_type) &&
+           emu->ram_bank_number >= 0x08 && emu->ram_bank_number <= 0x0C)
+        {
+            return ((u8*)(&emu->rtc.s))[emu->ram_bank_number - 0x08];
+        }
+    }
+    ERROR("Unsupported MBC3 cartridge read address: 0x%04X", (u32)addr);
+    return 0xFF;
+}
+
+void mbc3_write(Emulator* emu, u16 addr, u8 data)
+{
+    if(addr <= 0x1FFF)
+    {
+        // Enable/disable cartridge RAM.
+        if(data == 0x0A)
+        {
+            emu->cram_enable = true;
+        }
+        else
+        {
+            emu->cram_enable = false;
+        }
+        return;
+    }
+    if(addr >= 0x2000 && addr <= 0x3FFF)
+    {
+        // Set ROM bank number.
+        emu->rom_bank_number = data & 0x7F;
+        if(emu->rom_bank_number == 0)
+        {
+            emu->rom_bank_number = 1;
+        }
+        return;
+    }
+    if(addr >= 0x4000 && addr <= 0x5FFF)
+    {
+        // Set RAM bank number, or map RTC registers.
+        emu->ram_bank_number = data;
+        return;
+    }
+    if(addr >= 0x6000 && addr <= 0x7FFF)
+    {
+        if(is_cart_timer(GetCartridgeHeader(emu->romData)->cartridge_type))
+        {
+            if(data == 0x01 && emu->rtc.time_latching)
+            {
+                emu->rtc.latch();
+            }
+            if(data == 0x00)
+            {
+                emu->rtc.time_latching = true;
+            }
+            else
+            {
+                emu->rtc.time_latching = false;
+            }
+            return;
+        }
+    }
+    if(addr >= 0xA000 && addr <= 0xBFFF)
+    {
+        if(emu->ram_bank_number <= 0x03)
+        {
+            if(emu->cRam)
+            {
+                if(!emu->cram_enable) return;
+                u32 bank_offset = emu->ram_bank_number * 8 * kb;
+                assert(bank_offset + (addr - 0xA000) <= emu->cRam_size);
+                emu->cRam[bank_offset + (addr - 0xA000)] = data;
+                return;
+            }
+        }
+        if(is_cart_timer(GetCartridgeHeader(emu->romData)->cartridge_type) &&
+           emu->ram_bank_number >= 0x08 && emu->ram_bank_number <= 0x0C)
+        {
+            ((u8*)(&emu->rtc.s))[emu->ram_bank_number - 0x08] = data;
+            emu->rtc.update_timestamp();
+            return;
+        }
+    }
+    ERROR("Unsupported MBC3 cartridge write address: 0x%04X", (u32)addr);
+}
+
 u8 CartridgeRead(Emulator *emu, u16 addr) {
 
     u8 cartridge_type = GetCartridgeHeader(emu->romData)->cartridge_type;
@@ -359,6 +468,10 @@ u8 CartridgeRead(Emulator *emu, u16 addr) {
     }
     else if(is_cart_mbc2(cartridge_type)) {
         return mbc2_read(emu, addr);
+    }
+    else if(is_cart_mbc3(cartridge_type))
+    {
+        return mbc3_read(emu, addr);
     }
     else {
         if(addr <= 0x7FFF) {
@@ -373,6 +486,7 @@ u8 CartridgeRead(Emulator *emu, u16 addr) {
     return 0xFF;
 }
 
+
 void CartridgeWrite(Emulator *emu, u16 addr, u8 data) {
     u8 cartridge_type = GetCartridgeHeader(emu->romData)->cartridge_type;
 
@@ -383,6 +497,11 @@ void CartridgeWrite(Emulator *emu, u16 addr, u8 data) {
     else if(is_cart_mbc2(cartridge_type))
     {
         mbc2_write(emu, addr, data);
+        return;
+    }
+    else if(is_cart_mbc3(cartridge_type))
+    {
+        mbc3_write(emu, addr, data);
         return;
     }
     else {

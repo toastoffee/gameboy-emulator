@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <ctime>
 
 Emulator::~Emulator() {
     Close();
@@ -66,6 +67,7 @@ void Emulator::Init(std::string cartridgePath, const void *cartridgeData, u64 ca
     serial.Init();
     ppu.init();
     joypad.init();
+    rtc.init();
 
     // init the cartridge ram
     switch(header->ram_size)
@@ -93,6 +95,10 @@ void Emulator::Init(std::string cartridgePath, const void *cartridgeData, u64 ca
 
 void Emulator::Update(f64 deltaTime) {
     joypad.update(this);
+    if(is_cart_timer(GetCartridgeHeader(romData)->cartridge_type))
+    {
+        rtc.update(deltaTime);
+    }
     u64 frameCycles = (u64)((f32)(GB_CLOCK_FREQUENCY * deltaTime) * clockSpeedScale );
     u64 endCycles = clockCycles + frameCycles;
     while(clockCycles < endCycles) {
@@ -289,14 +295,42 @@ void Emulator::load_cartridge_ram_data() {
 
     fread(cRam, 1, cRam_size, f);
 
+    if(is_cart_timer(GetCartridgeHeader(romData)->cartridge_type)) {
+        // Restore RTC.
+        fread(&rtc, 1, sizeof(RTC), f);
+        // Read timestamp.
+        i64 save_timestamp;
+        fread(&save_timestamp, 1, sizeof(i64), f);
+        if (!rtc.halted()) {
+            // Apply delta time between last save time and current time.
+            i64 current_timestamp = std::time(nullptr);
+            i64 delta_time = current_timestamp - save_timestamp;
+            if (delta_time < 0) delta_time = 0;
+            rtc.time += (i64) delta_time;
+            rtc.update_time_registers();
+        }
+    }
+
     INFO("cartridge RAM data loaded: %s", save_path.c_str());
 }
+
 
 void Emulator::save_cartridge_ram_data() {
     auto save_path = cartridge_path.substr(0, cartridge_path.length() - 2) + "sav";
 
     std::ofstream saveFile(save_path, std::ios::out | std::ios::binary);
     saveFile.write((const char *)cRam, cRam_size);
+
+    if(is_cart_timer(GetCartridgeHeader(romData)->cartridge_type))
+    {
+        // forget the big-endian and the little-endian problem
+
+        // Save RTC state.
+        saveFile.write((const char *)&rtc, sizeof(RTC));
+        // Save current timestamp.
+        i64 timestamp = std::time(nullptr);
+        saveFile.write((const char *)&timestamp, sizeof(i64));
+    }
 
     saveFile.close();
 

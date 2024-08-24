@@ -20,6 +20,7 @@
 #include "serial.h"
 #include "ppu.h"
 #include "joypad.h"
+#include "RTC.h"
 
 #include <string>
 
@@ -38,12 +39,16 @@ public:
     //! The number of ROM banks. 16KB per bank.
     u32 num_rom_banks = 0;
     //! MBC1/MBC2: The cartridge RAM is enabled for reading / writing.
+    //! MBC3: The cartridge RAM and cartridge timer enabled.
     bool cram_enable = false;
-    //! MBC1/MBC2: The ROM bank number controlling which rom bank is mapped to 0x4000~0x7FFF.
+    //! MBC1/MBC2/MBC3: The ROM bank number controlling which rom bank is mapped to 0x4000~0x7FFF.
     u8 rom_bank_number = 1;
     //! MBC1: The RAM bank number register controlling which ram bank is mapped to 0xA000~0xBFFF.
     //! If the cartridge ROM size is larger than 512KB (32 banks), this is used to control the
     //! high 2 bits of rom bank number, enabling the game to use at most 2MB of ROM data.
+    //! MBC3: The RAM bank number register controlling which ram bank/RTC register is mapped to 0xA000~0xBFFF.
+    //! 0-3: RAM banks.
+    //! 8-12: RTC registers.
     u8 ram_bank_number = 0;
     //! MBC1: The banking mode.
     //! 0: 0000–3FFF and A000–BFFF are locked to bank 0 of ROM and SRAM respectively.
@@ -72,6 +77,7 @@ public:
     Serial serial;
     PPU ppu;
     Joypad joypad;
+    RTC rtc;
 
     bool isCartLoaded = false;
 

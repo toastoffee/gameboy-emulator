@@ -17,6 +17,7 @@
 #include "bit_oper.h"
 
 class RTC {
+public:
     u8 s; // Seconds.
     u8 m; // Minutes.
     u8 h; // Hours.
